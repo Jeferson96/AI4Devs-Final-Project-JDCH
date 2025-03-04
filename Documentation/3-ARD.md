@@ -95,33 +95,30 @@ El backend del sistema sigue una arquitectura basada en principios de **Domain-D
 
 ### **3.1.1 Principios y Arquitecturas Aplicadas**  
 
-📌 **Domain-Driven Design (DDD)**  
-- El código se organiza en **módulos de dominio**, reflejando los conceptos clave del negocio (Ej: `Appointments`, `Users`, `Availability`).  
-- Cada módulo encapsula su lógica de negocio, evitando dependencias innecesarias entre entidades.  
+✅ **Domain-Driven Design (DDD)**  
+- Se han agregado **módulos específicos** para la gestión de disponibilidad y validación de reglas de negocio.  
+- Cada módulo encapsula su lógica y evita dependencias innecesarias.  
 
-📌 **Hexagonal Architecture**  
-- **Adaptadores y Puertos:**  
-  - Se implementan puertos (`interfaces`) para separar la lógica de negocio de las implementaciones concretas (Ej: persistencia de datos, servicios externos).  
-  - Se definen adaptadores en la capa de infraestructura para manejar interacciones con servicios externos (Ej: notificaciones por email).  
+✅ **Hexagonal Architecture**  
+- Se han definido **puertos y adaptadores** para manejar la **actualización de disponibilidad en tiempo real**.  
+- Implementación de adaptadores para la integración con **servicios de mensajería en tiempo real**.  
 
-📌 **Vertical Slicing**  
-- Cada funcionalidad del sistema es **independiente y modular**, evitando la estructura tradicional en capas monolíticas.  
-- Se organizan las carpetas por **casos de uso**, en lugar de categorías técnicas.  
+✅ **Vertical Slicing**  
+- Separación modular de **Citas**, **Disponibilidad**, **Notificaciones** y **Reglas de Negocio**.  
+- Cada funcionalidad se encapsula en su propio módulo para garantizar mantenibilidad y escalabilidad.  
 
-📌 **Screaming Architecture**  
-- La estructura del código refleja el **negocio**, no la tecnología.  
-- En lugar de carpetas genéricas como `services`, `controllers`, se usan nombres como `Appointments`, `Users`, `Availability`.  
+✅ **Event-Driven Architecture**  
+- Se han introducido eventos internos para gestionar la **actualización de disponibilidad** y evitar conflictos en la asignación de citas.  
+- Uso de **mensajes en tiempo real** para reflejar cambios en la agenda de los profesionales.  
 
-📌 **Clean Architecture**  
-- Separación estricta en **capas**:  
-  - **Capa de dominio:** Define las entidades y lógica de negocio.  
-  - **Capa de aplicación:** Contiene los casos de uso y reglas de aplicación.  
-  - **Capa de infraestructura:** Implementa adaptadores para bases de datos y servicios externos.  
-  - **Capa de interfaz:** Expone la API a los clientes.  
+📌 **Patrones de Diseño Implementados:**  
 
-📌 **SOLID & DRY Principles**  
-- Se sigue **Single Responsibility Principle (SRP)** en cada módulo.  
-- Se evita la duplicación de código con **reutilización de servicios** y patrones de diseño adecuados.  
+| **Patrón** | **Descripción** |
+|------------|------------------------------------------------------|
+| **Repository Pattern** | Separa la lógica de acceso a datos de la lógica de negocio. |
+| **Observer Pattern** | Implementado para **actualización en tiempo real de la disponibilidad** de los profesionales. |
+| **Event-Driven Architecture** | Manejo de eventos para reflejar cambios de disponibilidad sin bloquear operaciones críticas. |
+| **Factory Pattern** | Creación de objetos complejos en los casos de uso de citas y disponibilidad. |
 
 ---
 
@@ -175,121 +172,367 @@ El sistema cuenta con los siguientes **flujos principales**, asegurando una expe
 
 ---
 
-## **3.3 Base de Datos**  
+### **3.3 Base de Datos**  
 
-El sistema utilizará **PostgreSQL**, con un modelo relacional optimizado para la gestión de citas y disponibilidad. Se asegurará que el esquema cumpla con las normas de **normalización** para evitar redundancias y garantizar la consistencia de los datos.  
-
-### **3.3.1 Entidades Principales**  
-
-| **Entidad** | **Descripción** |
-|------------|------------------------------------------------------|
-| **Users** | Contiene datos de pacientes y profesionales. |
-| **Appointments** | Registra la fecha, hora y estado de cada cita. |
-| **Availability** | Gestiona los horarios disponibles de los profesionales. |
-| **Notifications** | Registra los correos electrónicos enviados a cada usuario. |
-| **AuditLogs** | Permite registrar acciones relevantes para auditoría. |
-
----
-
-### **3.3.2 Modelo Relacional**  
+📌 **Modelo Relacional Actualizado:**  
 
 ```mermaid
 erDiagram
-    USERS ||--o{ APPOINTMENTS : has
-    USERS ||--o{ AVAILABILITY : sets
-    APPOINTMENTS ||--|{ NOTIFICATIONS : triggers
-    USERS ||--o{ AUDITLOGS : logs
+    %% Tablas del esquema `auth` de Supabase
+    AUTH_USERS {
+        uuid id PK
+        text email UK
+        text encrypted_password
+        json raw_user_meta_data
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    AUTH_IDENTITIES {
+        uuid id PK
+        uuid user_id FK
+        text provider
+        text provider_id UK
+    }
+
+    %% Tablas del esquema `public` para la funcionalidad del MVP
+    USERS {
+        uuid id PK
+        uuid auth_user_id FK
+        text first_name
+        text last_name
+        text role "ENUM:PATIENT,PROFESSIONAL"
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    APPOINTMENTS {
+        uuid id PK
+        uuid patient_id FK
+        uuid professional_id FK
+        timestamp appointment_date
+        text status "ENUM:SCHEDULED,CANCELLED,COMPLETED"
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    AVAILABILITY {
+        uuid id PK
+        uuid professional_id FK
+        timestamp available_date
+        time start_time
+        time end_time
+        boolean is_booked
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    NOTIFICATIONS {
+        uuid id PK
+        uuid user_id FK
+        uuid appointment_id FK
+        text type "ENUM:CONFIRMATION,REMINDER,CANCELLATION"
+        boolean is_sent
+        timestamp sent_at
+    }
+    
+    AUDIT_LOGS {
+        uuid id PK
+        uuid user_id FK
+        text action
+        json metadata
+        timestamp created_at
+    }
+    
+    CONFIGURATION {
+        uuid id PK
+        text key UK
+        text value
+        timestamp updated_at
+    }
+    
+    %% Relaciones entre tablas
+    AUTH_USERS ||--o{ USERS : "authenticates"
+    USERS ||--o{ APPOINTMENTS : "has as patient"
+    USERS ||--o{ APPOINTMENTS : "has as professional"
+    USERS ||--o{ AVAILABILITY : "manages"
+    APPOINTMENTS ||--o{ NOTIFICATIONS : "triggers"
+    USERS ||--o{ AUDIT_LOGS : "generates"
+    USERS ||..o{ NOTIFICATIONS : "receives"
 ```
 
-📌 **Explicación del Modelo:**  
-- Cada **usuario** puede tener múltiples **citas agendadas**.  
-- Los **profesionales** gestionan su disponibilidad en la tabla `Availability`.  
-- El sistema almacena **notificaciones enviadas** a los usuarios en la tabla `Notifications`.  
-- Se implementa **`AuditLogs`** para registrar cambios en el sistema y garantizar trazabilidad.  
+📌 **Explicación del modelo de datos:**  
 
----
+✅ **Integración con Supabase Auth**  
+- `AUTH_USERS` almacena los datos de autenticación gestionados por Supabase.  
+- `AUTH_IDENTITIES` permite la vinculación con proveedores de autenticación externa (Google, GitHub, etc.).  
+- `USERS` referencia a `AUTH_USERS` mediante `auth_user_id`, permitiendo la asociación con perfiles internos en la aplicación.  
 
-### **3.3.3 Estrategia de Indexación y Optimización**  
-- Se utilizarán **índices en columnas de búsqueda frecuente** (`id`, `user_id`, `appointment_date`).  
-- Se emplearán **UUIDs en lugar de IDs autoincrementales** para mayor seguridad y escalabilidad.  
-- Se aplicarán **constraints de integridad referencial** para evitar datos huérfanos o inconsistencias.  
+✅ **Usuarios y gestión de disponibilidad**  
+- `USERS` diferencia entre **pacientes** y **profesionales** mediante el campo `role`.  
+- `AVAILABILITY` almacena los horarios disponibles de los profesionales, con un campo `is_booked` para indicar si un horario ya está reservado.  
 
----
+✅ **Citas y notificaciones**  
+- `APPOINTMENTS` gestiona las citas entre **pacientes y profesionales**, incluyendo estados (`SCHEDULED`, `CANCELLED`, `COMPLETED`).  
+- `NOTIFICATIONS` está ligada a `APPOINTMENTS`, permitiendo el envío de correos electrónicos con estados `CONFIRMATION`, `REMINDER` y `CANCELLATION`.  
 
-## **3.4 Sistema de Notificaciones**  
+✅ **Monitoreo y Configuración del Sistema**  
+- `AUDIT_LOGS` almacena acciones relevantes para la trazabilidad del sistema.  
+- `CONFIGURATION` permite definir parámetros clave como **restricciones de cancelación/modificación** y **horarios de atención**.  
 
-El sistema contará con un módulo de notificaciones basado en **Nodemailer** y **SendGrid**, con posibilidad de integración futura con **WhatsApp API** o **Twilio** para SMS.  
+📌 **Estrategias de Indexación y Optimización:**  
 
-### **3.4.1 Flujo de Envío de Correos**  
-1. El usuario agenda, modifica o cancela una cita.  
-2. El backend **genera un evento** de notificación.  
-3. El servicio de notificaciones **procesa el evento** y envía el correo electrónico.  
-4. Se almacena un **registro en la tabla `Notifications`** para trazabilidad.  
+✅ **Índices Clave:**  
+- **`appointment_date` en APPOINTMENTS**: Mejora el rendimiento de consultas sobre disponibilidad.  
+- **`user_id` en NOTIFICATIONS y AUDIT_LOGS**: Facilita la recuperación rápida de registros por usuario.  
+- **`key` en CONFIGURATION**: Asegura consultas eficientes sobre parámetros configurables del sistema.  
+
+✅ **Estrategias de Normalización y Integridad:**  
+- **Estructura completamente normalizada**, eliminando redundancias en las relaciones.  
+- **Claves foráneas definidas** para garantizar integridad referencial en APPOINTMENTS, AVAILABILITY y NOTIFICATIONS.  
+- **Soporte para auditoría de cambios en AUDIT_LOGS**, asegurando trazabilidad en el sistema.  
+
+
+
+### **3.4 Sistema de Notificaciones**  
+
+📌 **Estrategia de Implementación:**  
+- **Notificaciones basadas en eventos**: Se activarán en función de cambios en **citas y disponibilidad**.  
+- **Integración con Supabase**: Las notificaciones estarán asociadas a usuarios autenticados en `AUTH_USERS`.  
+- **Mecanismo asíncrono**: Se utilizará **Redis Pub/Sub o una cola en Supabase** para procesar los eventos sin afectar el rendimiento de la API principal.  
+
+📌 **Eventos que activan una notificación:**  
+✅ **Cita agendada:** Notificación de confirmación para el paciente y el profesional.  
+✅ **Modificación de cita:** Notificación con la actualización del horario.  
+✅ **Cancelación de cita:** Notificación inmediata sobre la cancelación.  
+✅ **Recordatorios:**  
+  - 24 horas antes de la cita.  
+  - 1 hora antes de la cita.  
+✅ **Actualización de disponibilidad:** Si un profesional modifica su horario, se notificará a los pacientes con citas afectadas.  
+
+📌 **Diagrama de Flujo del Envío de Notificaciones**  
+
+```mermaid
+sequenceDiagram
+    participant Patient as Paciente
+    participant Professional as Profesional
+    participant Backend as Backend API
+    participant DB as Base de Datos
+    participant Email as Servicio de Notificaciones
+
+    Patient->>Backend: Agenda una cita
+    Backend->>DB: Guarda la cita en la base de datos
+    Backend->>Email: Envía confirmación a paciente y profesional
+    Email-->>Patient: Recibe confirmación de cita
+    Email-->>Professional: Recibe confirmación de cita
+
+    Note over Backend: Se genera un evento en la cola de notificaciones
+
+    Backend->>DB: Programa recordatorio 24h antes
+    Backend->>DB: Programa recordatorio 1h antes
+```
+
+📌 **Integración con el Modelo de Datos**  
+- `NOTIFICATIONS` almacena un registro de cada notificación enviada.  
+- Relación con `APPOINTMENTS` para notificaciones de citas.  
+- Relación con `USERS` para trazabilidad de notificaciones enviadas.  
+
+📌 **Escalabilidad y Seguridad**  
+✅ **Estrategia de reintento**: Si una notificación falla, se intentará reenviar hasta **tres veces** antes de registrar el error.  
+✅ **Registro de actividad**: Se documentarán los envíos exitosos y fallidos en `AUDIT_LOGS`.  
+✅ **Protección contra spam**: Se limitará el número de notificaciones enviadas por usuario en un período determinado.  
+
+
 
 ---
 
 
 # **4. Modelado de Datos**  
 
-## **4.1 Esquema de Base de Datos**  
 
-La base de datos del sistema está diseñada con **PostgreSQL**, siguiendo un **modelo relacional** optimizado para la gestión eficiente de usuarios, citas y disponibilidad. Se ha aplicado **normalización** para evitar redundancias y asegurar integridad referencial.  
+### **4.1 Esquema de Base de Datos**  
+
+La base de datos del sistema está diseñada en **PostgreSQL con Supabase**, siguiendo un **modelo relacional** optimizado para la gestión eficiente de usuarios, citas y disponibilidad. Se ha aplicado **normalización completa** para evitar redundancias y garantizar integridad referencial.  
 
 📌 **Características clave del modelo de datos:**  
-✅ **Uso de UUIDs** como identificadores primarios en todas las tablas.  
-✅ **Índices en columnas de búsqueda frecuente** (`user_id`, `appointment_date`).  
-✅ **Relaciones bien definidas** con claves foráneas y restricciones de integridad.  
+✅ **Integración con Supabase Auth**: `AUTH_USERS` almacena la autenticación y `USERS` gestiona la relación con las funcionalidades de la aplicación.  
+✅ **Uso de UUIDs** como identificadores primarios en todas las tablas para garantizar unicidad y escalabilidad.  
+✅ **Índices en columnas de búsqueda frecuente** (`user_id`, `appointment_date`) para optimizar consultas.  
+✅ **Estrategia de retención de datos**: Se establecen reglas en `CONFIGURATION` para gestionar políticas de almacenamiento de notificaciones y logs.  
+✅ **Normalización completa**: Relación entre entidades sin redundancia de datos.  
+
+📌 **Actualización en el Diagrama Relacional**  
+
+```mermaid
+erDiagram
+    %% Tablas del esquema `auth` de Supabase
+    AUTH_USERS {
+        uuid id PK
+        text email UK
+        text encrypted_password
+        json raw_user_meta_data
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    AUTH_IDENTITIES {
+        uuid id PK
+        uuid user_id FK
+        text provider
+        text provider_id UK
+    }
+
+    %% Tablas del esquema `public` para la funcionalidad del MVP
+    USERS {
+        uuid id PK
+        uuid auth_user_id FK
+        text first_name
+        text last_name
+        text role "ENUM:PATIENT,PROFESSIONAL"
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    APPOINTMENTS {
+        uuid id PK
+        uuid patient_id FK
+        uuid professional_id FK
+        timestamp appointment_date
+        text status "ENUM:SCHEDULED,CANCELLED,COMPLETED"
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    AVAILABILITY {
+        uuid id PK
+        uuid professional_id FK
+        timestamp available_date
+        time start_time
+        time end_time
+        boolean is_booked
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    NOTIFICATIONS {
+        uuid id PK
+        uuid user_id FK
+        uuid appointment_id FK
+        text type "ENUM:CONFIRMATION,REMINDER,CANCELLATION"
+        boolean is_sent
+        timestamp sent_at
+    }
+    
+    AUDIT_LOGS {
+        uuid id PK
+        uuid user_id FK
+        text action
+        json metadata
+        timestamp created_at
+    }
+    
+    CONFIGURATION {
+        uuid id PK
+        text key UK
+        text value
+        timestamp updated_at
+    }
+    
+    %% Relaciones entre tablas
+    AUTH_USERS ||--o{ USERS : "authenticates"
+    USERS ||--o{ APPOINTMENTS : "has as patient"
+    USERS ||--o{ APPOINTMENTS : "has as professional"
+    USERS ||--o{ AVAILABILITY : "manages"
+    APPOINTMENTS ||--o{ NOTIFICATIONS : "triggers"
+    USERS ||--o{ AUDIT_LOGS : "generates"
+    USERS ||..o{ NOTIFICATIONS : "receives"
+```
+
+📌 **Explicación de los cambios en la estructura de datos:**  
+✅ **Usuarios y autenticación**  
+- `AUTH_USERS` almacena credenciales y metadatos de Supabase.  
+- `USERS` se enlaza con `AUTH_USERS` mediante `auth_user_id` para la gestión de pacientes y profesionales.  
+
+✅ **Gestión de disponibilidad y citas**  
+- `AVAILABILITY` gestiona los horarios de los profesionales y su estado (`is_booked`).  
+- `APPOINTMENTS` registra las citas entre pacientes y profesionales, asegurando integridad referencial.  
+
+✅ **Notificaciones y auditoría**  
+- `NOTIFICATIONS` almacena registros de confirmaciones, recordatorios y cancelaciones.  
+- `AUDIT_LOGS` documenta cambios en el sistema con `metadata` en formato JSON.  
+
+✅ **Configuración flexible**  
+- `CONFIGURATION` almacena parámetros del sistema como tiempos de cancelación/modificación y políticas de retención de datos.  
+
 
 ---
 
-## **4.2 Entidades y Relaciones**  
+
+### **4.2 Entidades y Relaciones**  
 
 El modelo de datos está compuesto por las siguientes entidades principales:  
 
 | **Entidad** | **Descripción** |
 |------------|------------------------------------------------------|
-| **Users** | Almacena la información de los usuarios (pacientes y profesionales). |
-| **Appointments** | Registra las citas entre pacientes y profesionales. |
-| **Availability** | Define la disponibilidad de los profesionales. |
-| **Notifications** | Almacena las notificaciones enviadas a los usuarios. |
-| **AuditLogs** | Guarda un registro de cambios y acciones en el sistema. |
+| **AUTH_USERS** | Gestionado por Supabase, almacena información de autenticación de los usuarios. |
+| **AUTH_IDENTITIES** | Relaciona a los usuarios con proveedores de autenticación externa (Google, GitHub, etc.). |
+| **USERS** | Información detallada de los usuarios, vinculado con `AUTH_USERS` para autenticación. |
+| **APPOINTMENTS** | Registra las citas entre pacientes y profesionales, con su respectivo estado. |
+| **AVAILABILITY** | Gestiona la disponibilidad de los profesionales, asegurando horarios reservables. |
+| **NOTIFICATIONS** | Almacena notificaciones enviadas a los usuarios, relacionadas con eventos de citas. |
+| **AUDIT_LOGS** | Guarda un historial de acciones dentro del sistema para trazabilidad y seguridad. |
+| **CONFIGURATION** | Permite parametrizar reglas del sistema, como restricciones de cancelación. |
 
-### **Diagrama Relacional**  
-
-```mermaid
-erDiagram
-    USERS ||--o{ APPOINTMENTS : has
-    USERS ||--o{ AVAILABILITY : sets
-    APPOINTMENTS ||--|{ NOTIFICATIONS : triggers
-    USERS ||--o{ AUDITLOGS : logs
-```
 
 📌 **Explicación de las relaciones:**  
-- Un **usuario** puede tener múltiples **citas** con distintos profesionales.  
-- Un **profesional** define su disponibilidad en la tabla `Availability`.  
-- Cada acción relacionada con citas **genera una notificación** para el usuario.  
-- Todos los eventos relevantes del sistema **se registran en `AuditLogs`**.  
+✅ **Autenticación con Supabase**  
+- `AUTH_USERS` se relaciona con `USERS` a través de `auth_user_id`, garantizando autenticación segura.  
+- `AUTH_IDENTITIES` vincula usuarios con autenticación externa.  
+
+✅ **Gestión de disponibilidad y citas**  
+- `USERS` diferencia entre **pacientes y profesionales** mediante el campo `role`.  
+- `APPOINTMENTS` asocia pacientes con profesionales y almacena el estado de la cita.  
+- `AVAILABILITY` almacena los horarios de los profesionales y su disponibilidad.  
+
+✅ **Notificaciones y auditoría**  
+- `NOTIFICATIONS` almacena confirmaciones, recordatorios y cancelaciones.  
+- `AUDIT_LOGS` documenta cambios en el sistema para trazabilidad.  
+
+✅ **Configuración dinámica**  
+- `CONFIGURATION` almacena reglas clave del sistema, permitiendo ajustes sin modificar código.  
+
 
 ---
 
-## **4.3 Normalización y Optimización**  
+### **4.3 Normalización y Optimización**  
 
-### **4.3.1 Estrategia de Normalización**  
-El esquema se ha diseñado para cumplir con la **Tercera Forma Normal (3NF)**, asegurando que:  
-✅ No haya **datos redundantes** innecesarios.  
-✅ Cada columna almacene un **único valor atómico**.  
-✅ Se utilicen **claves foráneas** para garantizar integridad de datos.  
+📌 **4.3.1 Estrategia de Normalización**  
+El modelo sigue la **Tercera Forma Normal (3NF)**, asegurando que:  
+✅ **No haya redundancia de datos**, separando autenticación (`AUTH_USERS`) de los perfiles (`USERS`).  
+✅ **Cada columna almacene un único valor atómico**, evitando listas dentro de atributos.  
+✅ **Las relaciones entre entidades estén correctamente definidas con claves foráneas**, garantizando integridad referencial.  
 
----
+📌 **Ajustes clave en la normalización:**  
+- `USERS.auth_user_id` referencia `AUTH_USERS.id`, evitando duplicación de datos de autenticación.  
+- `APPOINTMENTS` separa `patient_id` y `professional_id` para clarificar las relaciones sin redundancia.  
+- `AVAILABILITY` almacena la disponibilidad de profesionales sin datos innecesarios sobre citas.  
 
-### **4.3.2 Optimización del Rendimiento**  
-📌 **Índices Clave:**  
-- **Búsquedas de citas:** Index en `appointment_date` para mejorar consultas por fecha.  
-- **Usuarios y autenticación futura:** Index en `email` para facilitar validaciones rápidas.  
+📌 **4.3.2 Optimización del Rendimiento**  
 
-📌 **Estrategias de Escalabilidad:**  
-- **Particionamiento de tablas** en el futuro para manejar grandes volúmenes de datos.  
-- **Almacenamiento de logs en una base de datos secundaria** para optimizar consultas en producción.  
+✅ **Índices Clave:**  
+- **`appointment_date` en APPOINTMENTS**: Acelera búsquedas de citas por fecha.  
+- **`user_id` en NOTIFICATIONS y AUDIT_LOGS**: Optimiza consultas relacionadas con usuarios.  
+- **`key` en CONFIGURATION**: Facilita la consulta eficiente de parámetros del sistema.  
+
+✅ **Estrategias de Escalabilidad:**  
+- **Uso de UUIDs** en todas las claves primarias, asegurando distribución uniforme en la base de datos.  
+- **Particionamiento de tablas en futuras versiones** para manejar grandes volúmenes de datos (ejemplo: `AUDIT_LOGS`).  
+- **Cache en consultas de lectura frecuente** mediante **Redis** para mejorar tiempos de respuesta.  
+
+✅ **Gestión de Retención de Datos:**  
+- **Borrado automático de logs** según la política almacenada en `CONFIGURATION`.  
+- **Depuración de notificaciones antiguas** con cron jobs para mantener rendimiento óptimo.  
+
 
 ---
 
@@ -320,14 +563,39 @@ El sistema manejará información sensible de los usuarios, por lo que se han im
 
 ---
 
-## **5.3 Controles de Acceso y Autenticación**  
+### **5.3 Controles de Acceso y Autenticación**  
 
-Aunque el **MVP** no implementará autenticación de usuarios, se define una estructura para futuras versiones con autenticación segura.  
+📌 **Autenticación con Supabase Auth**  
+✅ **Usuarios gestionados en Supabase Auth (`AUTH_USERS`)**, vinculados con perfiles en `USERS`.  
+✅ **Autenticación con JWT**, permitiendo acceso seguro a la API.  
+✅ **Integración con OAuth2 y proveedores externos** a través de `AUTH_IDENTITIES` (Google, GitHub, etc.).  
 
-📌 **Modelo de Acceso en el Futuro:**  
-- **JWT con Refresh Tokens:** Para autenticación basada en tokens.  
-- **OAuth 2.0 & OpenID Connect:** Para futuras integraciones con proveedores externos.  
-- **Roles y Permisos Basados en RBAC:** Diferenciación de permisos entre pacientes y profesionales.  
+📌 **Autorización Basada en Roles (RBAC)**  
+✅ **Roles definidos en `USERS.role`**:  
+   - `PATIENT`: Solo puede gestionar sus propias citas.  
+   - `PROFESSIONAL`: Puede gestionar su disponibilidad y citas asignadas.  
+   - **Futuro:** Se puede agregar un rol `ADMIN` para auditoría y configuración.  
+
+📌 **Reglas de Seguridad Aplicadas**  
+✅ **Row Level Security (RLS) en Supabase**:  
+   - Los pacientes solo pueden acceder a **sus propias citas**.  
+   - Los profesionales solo pueden gestionar **su disponibilidad y citas asignadas**.  
+   - No se permite acceso directo a `AUTH_USERS`, solo a través del backend.  
+
+✅ **Protección de Rutas en la API**  
+   - Middleware de **verificación de JWT** en cada solicitud autenticada.  
+   - Validación de **permisos de usuario** antes de ejecutar operaciones sensibles.  
+
+📌 **Ejemplo de Política RLS en `APPOINTMENTS`**  
+```sql
+CREATE POLICY "Patients can access their own appointments"
+ON public.appointments
+FOR SELECT USING (auth.uid() = patient_id);
+
+CREATE POLICY "Professionals can access their assigned appointments"
+ON public.appointments
+FOR SELECT USING (auth.uid() = professional_id);
+```
 
 ---
 
@@ -383,19 +651,43 @@ Para garantizar una experiencia de usuario fluida, se implementarán estrategias
 
 ---
 
-## **6.3 Monitoreo y Mantenimiento**  
-
-Para garantizar un **99% de disponibilidad**, se aplicarán estrategias de monitoreo continuo.  
+### **6.3 Monitoreo y Mantenimiento**  
 
 📌 **Estrategias de Monitoreo:**  
-✅ **Logging Centralizado** con **Winston + ELK Stack** (Elasticsearch, Logstash, Kibana).  
-✅ **Alertas y Notificaciones** con Prometheus + Grafana o AWS CloudWatch.  
-✅ **Sistemas de Monitoreo de Errores** con Sentry o Datadog.  
+✅ **Registro de eventos de autenticación** en **Supabase Auth**, incluyendo intentos fallidos y logins exitosos.  
+✅ **Monitoreo de consultas SQL en PostgreSQL** con logs activados en Supabase para identificar cuellos de botella.  
+✅ **Alertas automáticas para eventos críticos**, como múltiples intentos fallidos de login o errores en la API.  
 
-📌 **Plan de Recuperación ante Fallos:**  
-✅ **Backups automáticos de la base de datos** con retención configurable.  
-✅ **Tolerancia a fallos en el backend** con reinicios automáticos (PM2 o Kubernetes).  
-✅ **Rollback Automático en despliegues** para mitigar fallos en nuevas versiones.  
+📌 **Herramientas Utilizadas:**  
+✅ **Supabase Logs**: Seguimiento en tiempo real de eventos de autenticación y cambios en la base de datos.  
+✅ **Prometheus + Grafana**: Visualización de métricas de rendimiento de la API.  
+✅ **Sentry o Datadog**: Captura y análisis de errores en frontend y backend.  
+✅ **Winston + Supabase Storage**: Almacenamiento de logs históricos en Supabase para auditoría.  
+
+📌 **Estrategia de Auditoría de Accesos:**  
+✅ **Registro en `AUDIT_LOGS`** de eventos relevantes, incluyendo:  
+   - Creación, modificación y cancelación de citas.  
+   - Cambios en la disponibilidad de profesionales.  
+   - Intentos de acceso no autorizados o fallos de autenticación.  
+
+📌 **Ejemplo de Registro de Auditoría en `AUDIT_LOGS`**  
+```json
+{
+  "user_id": "550e8400-e29b-41d4-a716-446655440000",
+  "action": "LOGIN_SUCCESS",
+  "metadata": {
+    "ip_address": "192.168.1.1",
+    "device": "Chrome on Windows"
+  },
+  "created_at": "2024-06-01T12:00:00Z"
+}
+```
+
+📌 **Mecanismo de Recuperación ante Fallos:**  
+✅ **Auto-escalado en Supabase**: Se activa automáticamente si la base de datos alcanza un umbral de uso elevado.  
+✅ **Respaldo de base de datos**: Backups automáticos configurados en Supabase con restauración en menos de 15 minutos.  
+✅ **Tolerancia a fallos en la API**: Implementación de **circuit breakers** y reintentos automáticos en solicitudes fallidas.  
+
 
 ---
 
@@ -458,72 +750,68 @@ graph TD;
 
 ---
 
-## **7.3 Modelo de Base de Datos**  
+### **7.3 Modelo de Base de Datos – Implementación en Backend**  
 
-El modelo de datos ha sido actualizado para incluir detalles de **columnas, tipos de datos, llaves primarias y foráneas, y relaciones**.  
+📌 **Interacción del Backend con la Base de Datos**  
+El backend utiliza **Prisma ORM** para interactuar con PostgreSQL, asegurando consultas seguras y eficientes. A continuación, se presentan ejemplos de cómo se gestionan las principales entidades en la API:  
 
-```mermaid
-erDiagram
-    USERS {
-        uuid id PK
-        string first_name
-        string last_name
-        string email UNIQUE
-        string role ENUM('PATIENT', 'PROFESSIONAL')
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    APPOINTMENTS {
-        uuid id PK
-        uuid patient_id FK -> USERS.id
-        uuid professional_id FK -> USERS.id
-        timestamp appointment_date
-        string status ENUM('SCHEDULED', 'CANCELLED', 'COMPLETED')
-        timestamp created_at
-        timestamp updated_at
-    }
+✅ **Usuarios y Autenticación con Supabase Auth**  
+- Los usuarios se gestionan a través de **Supabase Auth (`AUTH_USERS`)**, y su perfil se almacena en `USERS`.  
+- Se consulta el perfil de un usuario autenticado usando su **`auth_user_id`**.  
 
-    AVAILABILITY {
-        uuid id PK
-        uuid professional_id FK -> USERS.id
-        timestamp available_date
-        time start_time
-        time end_time
-        boolean is_booked DEFAULT FALSE
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    NOTIFICATIONS {
-        uuid id PK
-        uuid user_id FK -> USERS.id
-        uuid appointment_id FK -> APPOINTMENTS.id
-        string type ENUM('CONFIRMATION', 'REMINDER', 'CANCELLATION')
-        boolean is_sent DEFAULT FALSE
-        timestamp sent_at
-    }
-
-    AUDIT_LOGS {
-        uuid id PK
-        uuid user_id FK -> USERS.id
-        string action
-        json metadata
-        timestamp created_at
-    }
-
-    USERS ||--o{ APPOINTMENTS : has
-    USERS ||--o{ AVAILABILITY : manages
-    APPOINTMENTS ||--|{ NOTIFICATIONS : triggers
-    USERS ||--o{ AUDIT_LOGS : logs
+```typescript
+const userProfile = await prisma.users.findUnique({
+  where: { auth_user_id: auth.uid() },
+});
 ```
 
-📌 **Explicación del modelo de datos:**  
-- **USERS**: Almacena información de pacientes y profesionales.  
-- **APPOINTMENTS**: Registra las citas entre pacientes y profesionales, con estados definidos.  
-- **AVAILABILITY**: Gestiona la disponibilidad de los profesionales.  
-- **NOTIFICATIONS**: Registra los correos electrónicos enviados.  
-- **AUDIT_LOGS**: Registra eventos relevantes del sistema.  
+✅ **Consulta de Citas Agendadas por un Paciente**  
+- Filtra las citas de un paciente autenticado.  
+
+```typescript
+const appointments = await prisma.appointments.findMany({
+  where: { patient_id: auth.uid() },
+  include: { professional: true },
+});
+```
+
+✅ **Validación de Disponibilidad Antes de Agendar una Cita**  
+- Se verifica que el horario no esté reservado antes de confirmar una cita.  
+
+```typescript
+const isAvailable = await prisma.availability.findFirst({
+  where: {
+    professional_id: selectedProfessionalId,
+    available_date: selectedDate,
+    start_time: selectedTime,
+    is_booked: false,
+  },
+});
+```
+
+✅ **Notificaciones y Auditoría**  
+- Al registrar una acción importante, se almacena en `AUDIT_LOGS` con metadatos.  
+
+```typescript
+await prisma.audit_logs.create({
+  data: {
+    user_id: auth.uid(),
+    action: "APPOINTMENT_BOOKED",
+    metadata: { appointment_id: newAppointment.id },
+  },
+});
+```
+
+📌 **Estrategias de Optimización de Consultas**  
+✅ **Uso de índices en PostgreSQL** para acelerar búsquedas en `appointment_date` y `user_id`.  
+✅ **Carga selectiva de datos** con `include` en Prisma para evitar consultas innecesarias.  
+✅ **Paginación en consultas grandes** con `take` y `skip` para evitar sobrecarga de datos en API.  
+
+📌 **Resumen de la Implementación**  
+- El backend **mantiene la seguridad de datos** mediante **autenticación con Supabase y reglas RLS**.  
+- Se **optimiza el acceso a datos** con Prisma, asegurando consultas eficientes y evitando carga innecesaria.  
+- Se emplean **logs de auditoría y eventos internos** para registrar acciones críticas.  
+
 
 ---
 
@@ -607,22 +895,48 @@ graph TD;
 
 # **8. Integraciones y Dependencias Externas**  
 
-## **8.1 Servicios de Correo Electrónico**  
+### **8.1 Servicios de Correo Electrónico**  
 
-Para el manejo de notificaciones automáticas, el sistema integrará un **servicio de correo electrónico**.  
+📌 **Estrategia de Implementación**  
+✅ **Envío Asíncrono de Correos**: Las notificaciones por correo electrónico serán procesadas a través de una **cola de eventos**, evitando bloqueos en la API.  
+✅ **Integración con Supabase Auth**: Los correos se enviarán a los usuarios autenticados, garantizando seguridad y personalización del mensaje.  
+✅ **Proveedores de Correo Evaluados**:  
+   - **SendGrid**: Opción recomendada por su integración con NestJS.  
+   - **Nodemailer**: Alternativa para entornos personalizados.  
 
-📌 **Opciones Evaluadas:**  
-✅ **SendGrid**: Escalable y fácil de integrar con NestJS.  
-✅ **Nodemailer**: Alternativa para entornos auto-gestionados.  
+📌 **Eventos que Disparan una Notificación**  
+✅ **Confirmación de Cita** (al agendar una nueva cita).  
+✅ **Recordatorios Automáticos** (24 horas y 1 hora antes de la cita).  
+✅ **Modificación o Cancelación de Cita** (para notificar cambios a los usuarios).  
+✅ **Disponibilidad Modificada** (cuando un profesional cambia su horario).  
 
-📌 **Eventos que activan una notificación:**  
-1. **Confirmación de cita:** Cuando un paciente agenda una cita.  
-2. **Recordatorio de cita:** Envío automático antes de la cita programada.  
-3. **Modificación de cita:** Notificación de cambios en la fecha/hora.  
-4. **Cancelación de cita:** Mensaje al paciente y profesional.  
+📌 **Ejemplo de Implementación en Backend**  
 
-📌 **Estrategia de Envío:**  
-✅ Se implementará una **cola de procesamiento** con RabbitMQ o Redis para manejar el envío asíncrono y evitar bloqueos en el sistema.  
+```typescript
+import * as nodemailer from "nodemailer";
+
+const transporter = nodemailer.createTransport({
+  service: "SendGrid",
+  auth: {
+    user: process.env.SENDGRID_USER,
+    pass: process.env.SENDGRID_PASS,
+  },
+});
+
+async function sendAppointmentConfirmation(email: string, appointmentDetails: object) {
+  await transporter.sendMail({
+    from: "no-reply@appointments.com",
+    to: email,
+    subject: "Cita Confirmada",
+    text: `Tu cita ha sido confirmada para el ${appointmentDetails.date} a las ${appointmentDetails.time}`,
+  });
+}
+```
+
+📌 **Optimización y Seguridad**  
+✅ **Cola de Notificaciones con Redis o Supabase Storage**: Permite almacenar eventos pendientes de envío.  
+✅ **Protección contra Spam**: Limitación de notificaciones enviadas por usuario en un período determinado.  
+✅ **Monitoreo de Correos No Entregados**: Implementación de métricas para analizar tasa de éxito en el envío de correos.  
 
 ---
 
@@ -676,22 +990,69 @@ El sistema será desplegado en una infraestructura en la nube que garantice **al
 
 ---
 
-## **9.2 Estrategia de Despliegue y CI/CD**  
+### **9.2 Estrategia de Despliegue y CI/CD**  
 
-Para garantizar actualizaciones sin interrupciones, se implementará un pipeline de **CI/CD (Continuous Integration / Continuous Deployment)**.  
+📌 **Flujo de Despliegue Actualizado**  
 
-📌 **Herramientas de CI/CD:**  
-✅ **GitHub Actions o GitLab CI/CD:** Para ejecutar pruebas y validar el código antes del despliegue.  
-✅ **Docker + Kubernetes:** Orquestación de contenedores en futuras versiones.  
-✅ **Blue-Green Deployment:** Estrategia para evitar tiempos de inactividad en producción.  
+1️⃣ **Commit en GitHub/GitLab:**  
+   - Cada cambio en el código se sube al repositorio.  
+   - Se activan pruebas automáticas antes del despliegue.  
 
-📌 **Flujo de Despliegue:**  
-1. **Commit en GitHub/GitLab:** El código es subido al repositorio.  
-2. **Pruebas Automáticas:** Se ejecutan tests unitarios y de integración.  
-3. **Build & Containerización:** Generación de imágenes Docker para backend y frontend.  
-4. **Despliegue Automático:** La nueva versión se lanza en un entorno staging.  
-5. **Validación Manual:** Se revisan logs y errores antes del lanzamiento a producción.  
-6. **Promoción a Producción:** Se activa la nueva versión sin interrupción del servicio.  
+2️⃣ **Pruebas Automáticas en CI/CD:**  
+   - **Pruebas unitarias y de integración** con Jest y Cypress.  
+   - **Verificación de seguridad** en la API mediante OWASP ZAP.  
+
+3️⃣ **Migraciones de Base de Datos en Supabase:**  
+   - Se aplican cambios en el esquema con **Prisma Migrate**.  
+   - Se actualizan las reglas **RLS (Row Level Security)** en Supabase.  
+
+4️⃣ **Configuración del Backend y Frontend:**  
+   - Backend (NestJS) desplegado en **Render, AWS o DigitalOcean**.  
+   - Frontend (Next.js) desplegado en **Vercel o AWS S3 con CloudFront CDN**.  
+   - Configuración de variables de entorno con **Supabase API Key** y JWT Secret.  
+
+5️⃣ **Validación en Staging:**  
+   - Pruebas en un entorno pre-producción antes de lanzar cambios.  
+
+6️⃣ **Promoción a Producción:**  
+   - **Blue-Green Deployment**: Se activa la nueva versión sin interrumpir el servicio.  
+   - Monitoreo en tiempo real con **Prometheus + Grafana**.  
+
+📌 **Automatización de CI/CD con GitHub Actions (Ejemplo Backend)**  
+
+```yaml
+name: Deploy Backend
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install Dependencies
+        run: npm install
+      
+      - name: Run Tests
+        run: npm test
+
+      - name: Deploy to Render
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+```
+
+📌 **Seguridad en el Despliegue**  
+✅ **Reglas de seguridad en Supabase** para restringir accesos no autorizados.  
+✅ **Rotación de claves API** en cada despliegue para evitar exposiciones.  
+✅ **Backups automáticos** en la base de datos antes de aplicar migraciones.  
+
 
 ---
 
@@ -715,17 +1076,40 @@ Para garantizar la estabilidad del sistema, se han definido estrategias de recup
 
 # **10. Decisiones Clave y Trade-offs**  
 
-## **10.1 Justificación de la Arquitectura Seleccionada**  
+### **10.1 Justificación de la Arquitectura Seleccionada**  
 
-El diseño arquitectónico del sistema se basa en principios de **modularidad, escalabilidad y mantenibilidad**. Las siguientes decisiones han sido tomadas para garantizar un balance entre **rapidez de desarrollo** y **capacidad de expansión** en futuras versiones.  
+📌 **Decisiones Claves en la Arquitectura**  
+✅ **Uso de Supabase para autenticación y base de datos**  
+   - **Autenticación gestionada con Supabase Auth**, lo que evita la implementación manual de gestión de usuarios y seguridad.  
+   - **PostgreSQL administrado en Supabase**, proporcionando **alta disponibilidad** sin la necesidad de mantenimiento manual.  
 
-📌 **Decisiones Claves:**  
-✅ **NestJS como framework backend**: Facilita la modularidad y aplica buenas prácticas como inyección de dependencias.  
-✅ **Next.js para el frontend**: Ofrece SSR e ISR, mejorando la performance y SEO.  
-✅ **PostgreSQL como base de datos**: Garantiza escalabilidad y consistencia en datos relacionales.  
-✅ **ORM Prisma**: Simplifica el manejo de datos y asegura integridad referencial.  
-✅ **RabbitMQ / Redis para procesamiento asíncrono** (planeado para futuras versiones).  
-✅ **Infraestructura basada en contenedores (Docker)**: Facilita la portabilidad y escalabilidad.  
+✅ **Backend con NestJS + Prisma ORM**  
+   - **Estructura modular** basada en **DDD y Clean Architecture** para escalabilidad.  
+   - **Prisma ORM** permite una integración optimizada con Supabase y PostgreSQL.  
+   - **Middleware de autenticación con Supabase JWT** para validar permisos en cada solicitud.  
+
+✅ **Frontend con Next.js**  
+   - **Server-Side Rendering (SSR) y Static Generation (SSG)** para mejorar rendimiento.  
+   - **Autenticación gestionada con Supabase Auth**, eliminando la necesidad de almacenar credenciales localmente.  
+
+✅ **Colas de Procesamiento con Redis y Supabase Storage**  
+   - **Procesamiento asíncrono de notificaciones y auditoría** para evitar bloqueos en la API.  
+   - **Almacenamiento de logs y reportes en Supabase Storage** en lugar de sobrecargar la base de datos principal.  
+
+📌 **Trade-offs Evaluados**  
+| **Decisión** | **Alternativa Evaluada** | **Justificación** |
+|-------------|------------------------|------------------|
+| **Supabase Auth** | Firebase Auth | Supabase ofrece integración nativa con PostgreSQL y mejor control de RLS. |
+| **PostgreSQL en Supabase** | AWS RDS | Supabase reduce la complejidad de administración sin afectar escalabilidad. |
+| **NestJS + Prisma** | Express + TypeORM | Prisma ofrece mejor tipado y compatibilidad con PostgreSQL. |
+| **Next.js SSR** | React SPA | SSR mejora SEO y tiempos de carga iniciales. |
+
+📌 **Beneficios Clave de la Arquitectura**  
+✅ **Reducción del tiempo de desarrollo** gracias a Supabase como backend-as-a-service.  
+✅ **Seguridad mejorada** con Supabase Auth y Row Level Security (RLS).  
+✅ **Escalabilidad automática** sin necesidad de administrar servidores de base de datos.  
+✅ **Menor costo operativo** al delegar infraestructura a Supabase en lugar de administrar bases de datos manualmente.  
+
 
 ---
 
@@ -757,54 +1141,102 @@ El MVP se enfoca en la funcionalidad base del sistema, pero se han identificado 
 
 # **11. Criterios de Éxito y Validación**  
 
-## **11.1 Definición de Éxito del MVP**  
+### **11.1 Definición de Éxito del MVP**  
 
-El **MVP del sistema de agendamiento de citas** será considerado exitoso si cumple con los siguientes criterios:  
+📌 **Criterios de Éxito Funcional**  
+✔ **Los pacientes pueden agendar, modificar y cancelar citas sin errores.**  
+✔ **Los profesionales pueden gestionar su disponibilidad sin inconsistencias.**  
+✔ **El sistema envía notificaciones automáticas de confirmación y recordatorio de citas.**  
+✔ **La autenticación con Supabase Auth funciona correctamente, asegurando acceso basado en roles.**  
 
-📌 **Funcionalidad Operativa:**  
-✅ Los pacientes pueden **agendar, modificar y cancelar citas** correctamente.  
-✅ Los profesionales pueden **gestionar su disponibilidad** sin errores.  
-✅ El sistema envía **notificaciones automáticas** de confirmación y recordatorio.  
+📌 **Criterios de Disponibilidad y Rendimiento (Ajustado para MVP)**  
+✔ **El sistema debe ser funcional durante los periodos de prueba y validación, sin fallas críticas prolongadas.**  
+✔ **El rendimiento debe ser suficiente para manejar pruebas con un número limitado de usuarios concurrentes.**  
+✔ **No se establece un SLA estricto en esta fase, priorizando iteraciones y corrección de errores sobre disponibilidad continua.**  
 
-📌 **Estabilidad y Disponibilidad:**  
-✅ **99% de disponibilidad** en el entorno de producción.  
-✅ No debe haber **errores críticos** que impidan la operación normal del sistema.  
-✅ **Tiempo de respuesta** en la API menor a **500ms** en condiciones normales.  
+📌 **Criterios de Seguridad y Validación**  
+✔ **Las reglas RLS en Supabase deben garantizar que los usuarios solo accedan a sus propios datos.**  
+✔ **Se debe verificar que los JWT emitidos por Supabase sean correctamente validados en cada solicitud.**  
+✔ **No deben registrarse vulnerabilidades críticas en las pruebas de seguridad.**  
 
-📌 **Experiencia de Usuario y Accesibilidad:**  
-✅ La interfaz debe ser **intuitiva y fácil de usar**.  
-✅ Cumplimiento con estándares de **accesibilidad web (WCAG 2.1)**.  
+📌 **Criterios de Experiencia del Usuario**  
+✔ **El 90% de los usuarios en la prueba beta deben completar el flujo de autenticación y agendamiento sin problemas.**  
+✔ **El feedback de los usuarios debe reflejar una experiencia fluida y satisfactoria en la plataforma.**  
+✔ **Las notificaciones deben ser recibidas correctamente por los usuarios, sin errores en la entrega de correos.**  
 
-📌 **Escalabilidad y Seguridad:**  
-✅ El sistema debe poder **manejar al menos 500 citas diarias** sin degradación del rendimiento.  
-✅ Todos los datos deben estar **cifrados en tránsito y en reposo**.  
 
 ---
 
-## **11.2 Pruebas de Integración y Carga**  
+### **11.2 Pruebas de Integración y Carga**  
 
-Para validar el desempeño del sistema, se realizarán **pruebas automatizadas** antes del lanzamiento.  
-
-📌 **Tipos de Pruebas Aplicadas:**  
+📌 **Tipos de Pruebas Aplicadas**  
 
 | **Tipo de Prueba** | **Objetivo** | **Herramientas** |
 |--------------------|-------------|-----------------|
-| **Pruebas Unitarias** | Validar módulos individuales del backend y frontend. | Jest, Testing Library |
-| **Pruebas de Integración** | Asegurar la correcta comunicación entre los componentes del sistema. | Cypress, Postman |
-| **Pruebas de Carga** | Evaluar la respuesta del sistema bajo alto tráfico. | k6, JMeter |
-| **Pruebas de Seguridad** | Detectar vulnerabilidades y ataques comunes. | OWASP ZAP, Burp Suite |
-| **Pruebas de Usabilidad** | Asegurar que la experiencia del usuario sea intuitiva. | Entrevistas y pruebas con usuarios reales |
+| **Pruebas Unitarias** | Validar la lógica de negocio en controladores y servicios. | Jest |
+| **Pruebas de Integración** | Verificar que la API interactúe correctamente con Supabase. | Jest + Supertest |
+| **Pruebas de Seguridad** | Evaluar autenticación con JWT y reglas RLS. | OWASP ZAP |
+| **Pruebas de Carga** | Simular múltiples usuarios accediendo simultáneamente al sistema. | k6 |
+| **Pruebas de Concurrencia** | Verificar la gestión de disponibilidad en citas. | k6 + PostgreSQL Locks |
+
+📌 **Estrategia de Pruebas en Supabase**  
+
+✅ **Validación de Reglas de Seguridad (RLS)**  
+- Se ejecutarán pruebas automatizadas para garantizar que **los pacientes solo accedan a sus propias citas**.  
+- Se evaluarán restricciones en `AVAILABILITY` para evitar sobreescrituras indebidas de horarios de profesionales.  
+
+✅ **Autenticación y Autorización con Supabase Auth**  
+- Se probarán inicios de sesión con JWT y validación de tokens.  
+- Se evaluarán casos de **expiración de sesiones** y reautenticación con refresh tokens.  
+
+✅ **Carga Simultánea de Consultas a PostgreSQL**  
+- Se probará el rendimiento de consultas como:  
+  ```sql
+  SELECT * FROM appointments WHERE patient_id = 'user-uuid' ORDER BY appointment_date DESC LIMIT 10;
+  ```
+- Se verificará la eficiencia de índices en `appointment_date` y `user_id`.  
+
+📌 **Monitoreo en Entorno de Pruebas**  
+✅ **Supabase Logs**: Para analizar **tiempos de respuesta de autenticación**.  
+✅ **Prometheus + Grafana**: Para visualizar carga en la API y la base de datos.  
+✅ **Sentry**: Para capturar errores en tiempo real durante pruebas de integración.  
+
 
 ---
 
-## **11.3 Estrategias de Validación con Usuarios**  
+### **11.3 Estrategias de Validación con Usuarios**  
 
-El sistema será validado con usuarios reales antes de su lanzamiento completo.  
+📌 **Plan de Validación con Usuarios Reales**  
 
-📌 **Plan de Validación:**  
-✅ **Prueba Beta con un grupo cerrado de profesionales y pacientes**.  
-✅ **Recopilación de feedback** para mejoras en la interfaz y flujo de usuario.  
-✅ **Monitoreo en tiempo real** del uso del sistema para detectar problemas tempranos.  
-✅ **Optimización iterativa basada en métricas de uso**.  
+✅ **Prueba Beta con un grupo cerrado de profesionales y pacientes**  
+   - Se seleccionarán usuarios reales para probar la plataforma en un entorno de **pre-producción**.  
+   - Se registrará el feedback sobre la experiencia de autenticación, navegación y flujo de citas.  
+
+✅ **Verificación de Permisos y Accesos**  
+   - Se validará que **los pacientes solo puedan gestionar sus propias citas**.  
+   - Se evaluará que **los profesionales solo puedan modificar su disponibilidad y ver sus citas asignadas**.  
+   - Se analizará el correcto funcionamiento de las **reglas de seguridad RLS en Supabase**.  
+
+✅ **Pruebas de Autenticación y Sesión**  
+   - Evaluación de inicio de sesión con Supabase Auth y validación de JWT.  
+   - Pruebas de persistencia de sesión y reautenticación con refresh tokens.  
+   - Pruebas de recuperación de contraseña mediante Supabase Auth.  
+
+✅ **Evaluación de Experiencia del Usuario**  
+   - Se medirá el tiempo promedio de **agendamiento de una cita** y **modificación de disponibilidad**.  
+   - Se recopilará retroalimentación sobre **claridad de notificaciones y correos electrónicos recibidos**.  
+   - Se identificarán posibles **puntos de fricción en la interfaz** y se priorizarán mejoras.  
+
+📌 **Herramientas para la Recopilación de Feedback**  
+✅ **Hotjar o FullStory**: Para analizar el comportamiento del usuario en la interfaz.  
+✅ **Google Forms / Typeform**: Encuestas de satisfacción post-prueba.  
+✅ **Supabase Analytics**: Seguimiento de interacciones clave en la plataforma.  
+
+📌 **Criterios de Aceptación para la Validación Final**  
+✔ **El 90% de los usuarios debe completar el flujo de autenticación sin problemas.**  
+✔ **El sistema debe gestionar correctamente el acceso a citas y disponibilidad según roles.**  
+✔ **Las pruebas de recuperación de contraseña deben completarse sin errores.**  
+✔ **El feedback de usuarios debe reflejar una experiencia satisfactoria en navegación y usabilidad.**  
+
 
 ---

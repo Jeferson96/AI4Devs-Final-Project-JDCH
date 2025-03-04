@@ -656,37 +656,36 @@ Se debe desarrollar la funcionalidad que permita a los **profesionales** definir
 
 ----------
 
-### **📌 Ticket 4: Implementación de Notificaciones Automáticas de Citas**
+### **📌 Ticket 4: Implementación de Notificaciones Automáticas de Citas**  
 
-📌 **Épica:** Sistema de Notificaciones
+📌 **Épica:** Sistema de Notificaciones  
 
-**Título:** Implementar el sistema de notificaciones automáticas mediante eventos internos
+**Título:** Implementar el sistema de notificaciones automáticas mediante eventos internos y cola de procesamiento  
 
 **Descripción:**  
-Se debe desarrollar un **sistema de notificaciones basado en eventos internos** para informar a los pacientes y profesionales sobre sus citas en distintos momentos clave. Las notificaciones deben enviarse automáticamente sin necesidad de un endpoint específico, asegurando un **flujo desacoplado y escalable**.
+Se debe desarrollar un **sistema de notificaciones basado en eventos internos y una cola de procesamiento** para informar a los pacientes y profesionales sobre sus citas en distintos momentos clave. Las notificaciones deben **enviarse de manera asíncrona**, evitando bloqueos en la API y permitiendo reintentos en caso de fallos.  
 
-**Tareas:**
-
--   Implementar un **sistema de eventos internos** en el backend para gestionar notificaciones (`AppointmentCreated`, `AppointmentCancelled`).
--   Crear un **listener de eventos** que escuche cambios en las citas y genere notificaciones en consecuencia.
--   Configurar un **proveedor de correo** (ejemplo: SendGrid o Supabase Auth con Magic Links).
--   Configurar **notificaciones en los siguientes eventos**:
-    -   Confirmación inmediata tras agendar una cita.
-    -   Recordatorio 24 horas antes de la cita.
-    -   Recordatorio 1 hora antes de la cita.
-    -   Notificación en caso de modificación o cancelación de la cita.
--   Implementar una **cola de procesamiento de notificaciones** para evitar bloqueos en la API.
--   Documentar el sistema de notificaciones en el repositorio.
+**Tareas:**  
+- [ ] Implementar un **sistema de eventos internos** en el backend para gestionar notificaciones (`AppointmentCreated`, `AppointmentCancelled`).  
+- [ ] Crear un **listener de eventos** que escuche cambios en las citas y genere notificaciones en consecuencia.  
+- [ ] Configurar un **proveedor de correo** (ejemplo: SendGrid o Supabase Auth con Magic Links).  
+- [ ] Configurar **notificaciones en los siguientes eventos**:  
+  - **Confirmación inmediata** tras agendar una cita.  
+  - **Recordatorio 24 horas antes** de la cita.  
+  - **Recordatorio 1 hora antes** de la cita.  
+  - **Notificación en caso de modificación o cancelación de la cita.**  
+- [ ] Implementar una **cola de procesamiento de notificaciones**, garantizando que los envíos sean asíncronos y no afecten el rendimiento de la API.  
+- [ ] Documentar el sistema de notificaciones en el repositorio, detallando su integración con eventos internos y colas de procesamiento.  
 
 **Criterios de Aceptación:**  
 ✅ Se emite un **evento interno** cuando se agenda, modifica o cancela una cita.  
-✅ Un **listener de eventos** recibe la información y envía las notificaciones correspondientes.  
+✅ Un **listener de eventos** recibe la información y procesa el envío de la notificación de manera asíncrona.  
 ✅ Se integran **recordatorios automáticos** (24 horas y 1 hora antes).  
 ✅ Se notifica al paciente y al profesional en caso de modificación o cancelación.  
-✅ Existe documentación clara en el repositorio sobre el sistema de notificaciones y su integración con eventos internos.
+✅ Existe documentación clara en el repositorio sobre el sistema de notificaciones y su integración con eventos internos y colas de procesamiento.  
 
 **Prioridad:** Alta  
-**Dependencias:** Implementación del Agendamiento de Citas.
+**Dependencias:** Implementación del Agendamiento de Citas.  
 
 ----------
 
@@ -716,115 +715,122 @@ Se debe desarrollar un sistema que **restrinja la cancelación y modificación d
 
 ----------
 
-### **📌 Ticket 6: Implementación de Mensajes de Disponibilidad en Tiempo Real**
+### **📌 Ticket 6: Implementación de Mensajes de Disponibilidad en Tiempo Real**  
+📌 **Épica:** Gestión de Disponibilidad  
 
-📌 **Épica:** Gestión de Disponibilidad
-
-**Título:** Mostrar mensajes en tiempo real sobre la disponibilidad de los profesionales
+**Título:** Implementar actualización en tiempo real de la disponibilidad de los profesionales mediante eventos internos  
 
 **Descripción:**  
-Se debe desarrollar un sistema que **actualice en tiempo real la disponibilidad de los profesionales**, asegurando que los pacientes solo puedan seleccionar horarios realmente disponibles.
+Se debe desarrollar un **sistema de actualización en tiempo real** para reflejar los cambios en la disponibilidad de los profesionales sin necesidad de recargar la página. En lugar de realizar consultas recurrentes a la base de datos, el sistema utilizará **suscripción a eventos en Supabase o WebSockets** para optimizar la eficiencia y escalabilidad.  
 
-**Tareas:**
-
--   Implementar **WebSockets o suscripción a cambios en Supabase** para actualizar la disponibilidad en tiempo real.
--   Configurar la lógica en el **frontend** para recibir y reflejar los cambios sin necesidad de recargar la página.
--   Validar en el **backend** que al momento de agendar una cita, la disponibilidad no haya cambiado simultáneamente.
--   Implementar un **mensaje en la interfaz** que notifique al paciente si un horario seleccionado ya no está disponible.
--   Documentar la estrategia de actualización en tiempo real en el repositorio.
+**Tareas:**  
+- [ ] Implementar **suscripción a eventos en Supabase** o **WebSockets** para actualizar la disponibilidad en tiempo real.  
+- [ ] Configurar la lógica en el **frontend** para recibir y reflejar los cambios sin necesidad de recargar la página.  
+- [ ] Validar en el **backend** que al momento de agendar una cita, la disponibilidad no haya cambiado simultáneamente.  
+- [ ] Implementar un **mensaje en la interfaz** que notifique al paciente si un horario seleccionado ya no está disponible.  
+- [ ] Documentar la estrategia de actualización en tiempo real en el repositorio.  
 
 **Criterios de Aceptación:**  
 ✅ La disponibilidad de los profesionales se **actualiza en tiempo real** en la interfaz del paciente.  
 ✅ Si un horario ya no está disponible al momento de seleccionarlo, se muestra un **mensaje claro en la interfaz**.  
-✅ Se ha implementado una estrategia eficiente para evitar **conflictos de disponibilidad** en el backend.  
-✅ Existe una documentación clara sobre la actualización en tiempo real de la disponibilidad.
+✅ El sistema utiliza **suscripción a cambios en Supabase** o **WebSockets**, en lugar de consultas directas a la base de datos.  
+✅ Se documenta la estrategia de actualización en tiempo real en el repositorio.  
 
 **Prioridad:** Media  
-**Dependencias:** Implementación de la Gestión de Disponibilidad por Parte del Profesional.
+**Dependencias:** Gestión de disponibilidad, Agendamiento de citas.
 
 ----------
 
-### **📌 Ticket 7: Implementación del Bloqueo de Agenda por Parte del Profesional**
+### **📌 Ticket 7: Implementación del Bloqueo de Agenda por Parte del Profesional**  
+📌 **Épica:** Gestión de Disponibilidad  
 
-📌 **Épica:** Gestión de Disponibilidad
-
-**Título:** Permitir que los profesionales bloqueen su agenda para definir horarios no disponibles
+**Título:** Permitir que los profesionales bloqueen su agenda con opción de reprogramación de citas afectadas  
 
 **Descripción:**  
-Se debe desarrollar la funcionalidad que permita a los **profesionales** bloquear horarios específicos o días completos en su agenda, evitando que los pacientes puedan agendar citas en esos períodos.
+Se debe desarrollar la funcionalidad que permita a los **profesionales** bloquear horarios específicos o días completos en su agenda, evitando que los pacientes puedan agendar citas en esos períodos. Si un profesional intenta bloquear un horario en el que ya existen citas agendadas, el sistema debe **ofrecer la opción de reprogramación automática** antes de aplicar el bloqueo, garantizando que los pacientes sean informados y puedan seleccionar un nuevo horario.  
 
-**Tareas:**
-
--   Crear el **endpoint en el backend** para que los profesionales bloqueen su agenda.
--   Implementar la **interfaz en el frontend** para que los profesionales puedan seleccionar horarios o días completos a bloquear.
--   Validar que un profesional **no pueda bloquear horarios donde ya existan citas agendadas** sin una acción previa.
--   Reflejar los **bloqueos en tiempo real** en el sistema de disponibilidad del paciente.
--   Documentar la funcionalidad de bloqueo en el repositorio.
+**Tareas:**  
+- [ ] Crear el **endpoint en el backend** para que los profesionales bloqueen su agenda.  
+- [ ] Implementar la **interfaz en el frontend** para que los profesionales puedan seleccionar horarios o días completos a bloquear.  
+- [ ] Validar que un profesional **no pueda bloquear horarios donde ya existan citas agendadas** sin una acción previa.  
+- [ ] Implementar un flujo de **reprogramación automática** cuando el profesional intente bloquear un horario con citas existentes.  
+- [ ] Configurar el **sistema de notificaciones** para informar a los pacientes sobre la reprogramación de su cita.  
+- [ ] Reflejar los **bloqueos en tiempo real** en el sistema de disponibilidad del paciente.  
+- [ ] Documentar la funcionalidad de bloqueo en el repositorio.  
 
 **Criterios de Aceptación:**  
 ✅ Un profesional puede **bloquear horarios o días completos** en su agenda.  
 ✅ El sistema **impide bloquear horarios con citas ya agendadas**, mostrando un mensaje de advertencia.  
+✅ Si hay citas en el horario bloqueado, el sistema:  
+   - **Muestra una advertencia al profesional.**  
+   - **Ofrece la opción de reprogramar automáticamente las citas afectadas.**  
+   - **Notifica a los pacientes sobre la reprogramación.**  
 ✅ Los horarios bloqueados **se actualizan en tiempo real** y no están disponibles para los pacientes.  
-✅ Existe documentación clara en el repositorio sobre la funcionalidad de bloqueo de agenda.
+✅ Existe documentación clara en el repositorio sobre la funcionalidad de bloqueo de agenda y reprogramación de citas.  
 
 **Prioridad:** Alta  
-**Dependencias:** Implementación de la Gestión de Disponibilidad por Parte del Profesional.
+**Dependencias:** Implementación de la Gestión de Disponibilidad por Parte del Profesional.  
 
 ----------
 
-### **📌 Ticket 8: Implementación del Registro y Auditoría de Cambios en las Citas**
+### **📌 Ticket 8: Implementación del Registro y Auditoría de Cambios en las Citas**  
+📌 **Épica:** Monitoreo y Seguridad  
 
-📌 **Épica:** Monitoreo y Seguridad
-
-**Título:** Registrar y auditar todos los cambios realizados en las citas para trazabilidad del sistema
+**Título:** Registrar y auditar todos los cambios realizados en las citas con información detallada e inmutable  
 
 **Descripción:**  
-Se debe desarrollar un sistema que registre automáticamente cualquier **creación, modificación o cancelación de citas**, almacenando información relevante para auditoría y control de cambios.
+Se debe desarrollar un sistema que registre automáticamente cualquier **creación, modificación o cancelación de citas**, almacenando información relevante para auditoría y control de cambios. Además, los registros deben contener **metadata adicional**, incluyendo IP del usuario, tipo de dispositivo utilizado y detalles de la acción realizada.  
 
-**Tareas:**
-
--   Implementar una **tabla de auditoría en la base de datos** para registrar cambios en las citas.
--   Configurar la lógica en el **backend** para registrar cada evento de cambio (`created`, `updated`, `cancelled`).
--   Incluir información relevante en cada registro de auditoría (ejemplo: usuario que realizó el cambio, fecha/hora, cambios específicos).
--   Implementar una **interfaz en el frontend** para que los administradores puedan consultar el historial de cambios.
--   Documentar la estrategia de auditoría en el repositorio.
+**Tareas:**  
+- [ ] Implementar una **tabla de auditoría en la base de datos** para registrar cambios en las citas.  
+- [ ] Configurar la lógica en el **backend** para registrar cada evento de cambio (`created`, `updated`, `cancelled`).  
+- [ ] Incluir información adicional en cada registro de auditoría:  
+  - **Usuario que realizó la acción**  
+  - **Fecha y hora del evento**  
+  - **IP del usuario y tipo de dispositivo utilizado**  
+  - **Detalles específicos del cambio realizado**  
+- [ ] Garantizar que los registros de auditoría **sean inmutables** y no puedan ser editados ni eliminados.  
+- [ ] Implementar una **interfaz en el frontend** para que los administradores puedan consultar el historial de cambios.  
+- [ ] Documentar la estrategia de auditoría en el repositorio.  
 
 **Criterios de Aceptación:**  
-✅ Cada acción sobre una cita (creación, modificación, cancelación) se **registra en la base de datos** con detalles específicos.  
-✅ Los administradores pueden **consultar el historial de cambios** desde el frontend.  
-✅ Se garantiza la **integridad y seguridad de los registros**, evitando ediciones o eliminaciones indebidas.  
-✅ Existe documentación clara sobre la implementación del registro de auditoría.
+✅ Cada acción sobre una cita (**creación, modificación, cancelación**) se **registra en la base de datos** con detalles específicos.  
+✅ Los registros incluyen **IP del usuario, dispositivo utilizado y tipo de acción realizada**.  
+✅ Los administradores pueden **consultar el historial de cambios**, pero **no pueden modificar ni eliminar registros**.  
+✅ Se garantiza la **inmutabilidad de los registros**, evitando alteraciones indebidas.  
+✅ Existe documentación clara en el repositorio sobre la implementación del registro de auditoría.  
 
 **Prioridad:** Media  
-**Dependencias:** Implementación de la Modificación y Cancelación de Citas.
+**Dependencias:** Implementación de la Modificación y Cancelación de Citas.  
 
 ----------
 
-### **📌 Ticket 9: Implementación de la Configuración Parametrizable de Reglas del Sistema**
+### **📌 Ticket 9: Implementación de la Configuración Parametrizable de Reglas del Sistema**  
+📌 **Épica:** Configuración y Administración  
 
-📌 **Épica:** Configuración y Administración
-
-**Título:** Permitir la configuración parametrizable de reglas del sistema desde un panel de administración
+**Título:** Permitir la configuración parametrizable de reglas del sistema sin afectar citas ya programadas  
 
 **Descripción:**  
-Se debe desarrollar una funcionalidad que permita a los administradores configurar parámetros clave del sistema, como **el límite de tiempo para cancelaciones/modificaciones y el horario de atención de los profesionales**, asegurando que estas reglas sean aplicadas en toda la plataforma.
+El sistema debe permitir que ciertos parámetros, como el **límite de tiempo para cancelaciones/modificaciones y el horario de atención de los profesionales**, sean configurables a través de una interfaz de administración o un archivo de configuración. Los cambios en la configuración **solo deben afectar nuevas citas**, garantizando que las reservas existentes mantengan las condiciones con las que fueron creadas.  
 
-**Tareas:**
-
--   Crear una **tabla de configuración** en la base de datos para almacenar los parámetros del sistema.
--   Implementar **endpoints en el backend** para actualizar y obtener configuraciones.
--   Diseñar una **interfaz en el frontend** que permita a los administradores modificar los valores de configuración.
--   Asegurar que las reglas parametrizables sean **aplicadas en tiempo real** en el sistema.
--   Documentar la estrategia de configuración en el repositorio.
+**Tareas:**  
+- [ ] Crear una **tabla de configuración** en la base de datos para almacenar los parámetros del sistema.  
+- [ ] Implementar **endpoints en el backend** para actualizar y obtener configuraciones.  
+- [ ] Diseñar una **interfaz en el frontend** que permita a los administradores modificar los valores de configuración.  
+- [ ] Asegurar que las reglas parametrizables sean **aplicadas en tiempo real** en el sistema, pero solo afecten citas futuras.  
+- [ ] Implementar una **validación en el backend** para garantizar que las citas ya programadas mantengan su configuración original.  
+- [ ] Registrar cualquier cambio en la configuración en un **historial de auditoría**.  
+- [ ] Documentar la estrategia de configuración en el repositorio.  
 
 **Criterios de Aceptación:**  
-✅ Los administradores pueden modificar las **reglas del sistema** desde una interfaz.  
-✅ Los cambios en la configuración **se reflejan automáticamente** en las reglas de negocio.  
-✅ Se asegura la **persistencia de las configuraciones** en la base de datos.  
-✅ Existe documentación clara en el repositorio sobre la parametrización de reglas del sistema.
+✅ Los administradores pueden modificar las **reglas del sistema** desde una interfaz o archivo de configuración.  
+✅ Los cambios en las reglas del sistema **no afectan citas ya programadas**, sino únicamente nuevas reservas.  
+✅ Se implementa una **validación en el backend** para asegurar que las citas existentes mantengan su configuración original.  
+✅ Se registra cualquier cambio en la configuración en un **historial de auditoría**.  
+✅ Existe documentación clara en el repositorio sobre la parametrización de reglas del sistema.  
 
 **Prioridad:** Alta  
-**Dependencias:** Implementación de Restricciones de Cancelación y Modificación de Citas.
+**Dependencias:** Gestión de citas, Auditoría de cambios, Panel de administración.  
 
 ----------
 
