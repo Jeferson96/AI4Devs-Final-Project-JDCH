@@ -15,75 +15,104 @@
 
 ### **0.1. Tu nombre completo:** Jeferson David Camargo Herrera
 
-### **0.2. Nombre del proyecto:**
+### **0.2. Nombre del proyecto:** CalenConnect
 
 ### **0.3. Descripción breve del proyecto:**
 
+Aquí tienes una **descripción breve del proyecto** basada en la documentación proporcionada:
+
+---
+
+### **Sistema de Agendamiento de Citas - MVP**  
+
+El **Sistema de Agendamiento de Citas** es una plataforma web diseñada para facilitar la programación de citas entre pacientes y profesionales en áreas como psicología y bienestar. Su objetivo es optimizar la gestión de disponibilidad y mejorar la experiencia del usuario con un sistema ágil y funcional.  
+
+#### **Características clave del MVP:**  
+✅ Agendamiento, modificación y cancelación de citas.  
+✅ Gestión manual de disponibilidad por parte de los profesionales.  
+✅ Notificaciones automáticas por correo electrónico.  
+✅ Mensajes en tiempo real sobre disponibilidad.  
+✅ Cumplimiento con estándares de seguridad y privacidad de datos.  
+
+💡 **Tecnologías utilizadas:**  
+- **Frontend:** Next.js  
+- **Backend:** NestJS  
+- **Base de Datos:** PostgreSQL con Supabase  
+
+El MVP está diseñado para ser escalable y servir como base para futuras mejoras, asegurando estabilidad, facilidad de uso y alta disponibilidad. 🚀
+
+
 ### **0.4. URL del proyecto:**
 
-> Puede ser pública o privada, en cuyo caso deberás compartir los accesos de manera segura. Puedes enviarlos a [alvaro@lidr.co](mailto:alvaro@lidr.co) usando algún servicio como [onetimesecret](https://onetimesecret.com/).
+
+Para el proyecto final, estoy trabajando con **tres repositorios independientes** para tener un mayor control sobre los cambios en cada uno.  
+
+1. **Repositorio Global:**  
+   - Contiene la documentación del proyecto.  
+   - Una vez se realice la entrega final, incluirá los proyectos de frontend y backend para tener todo unificado.  
+   - **URL:** https://github.com/Jeferson96/AI4Devs-Final-Project-JDCH.git
+
+2. **Repositorio Backend:**  
+   - Se encarga de gestionar y hacer seguimiento del código del backend.  
+   - **URL:** https://github.com/Jeferson96/calenconnect-api.git
+
+3. **Repositorio Frontend:**  
+   - Se encarga de almacenar y gestionar el código del frontend.  
+   - **URL:** https://github.com/Jeferson96/calenconnect-ui.git  
+
+
 
 ### 0.5. URL o archivo comprimido del repositorio
 
 > Puedes tenerlo alojado en público o en privado, en cuyo caso deberás compartir los accesos de manera segura. Puedes enviarlos a [alvaro@lidr.co](mailto:alvaro@lidr.co) usando algún servicio como [onetimesecret](https://onetimesecret.com/). También puedes compartir por correo un archivo zip con el contenido
 
 
----
 
-## **1. Descripción General del Producto**
+## **1. Descripción General del Producto**  
 
 ### **1.1 Objetivo**  
 
-El **Sistema de Agendamiento de Citas** es una plataforma diseñada para facilitar la programación, gestión y control de citas entre profesionales y clientes en el sector de la **psicología y áreas relacionadas**.  
+El **Sistema de Agendamiento de Citas** tiene como objetivo principal ofrecer una plataforma digital eficiente y accesible para la gestión de citas entre **pacientes** y **profesionales** del área de psicología y bienestar.  
 
-El propósito principal del producto es proporcionar una **solución eficiente y accesible** para la administración de citas, permitiendo que los profesionales gestionen su disponibilidad y que los pacientes puedan reservar sesiones de manera sencilla y organizada.  
+Este MVP busca:  
 
-### **Valor que aporta:**  
-✅ **Automatización del proceso de agendamiento**, eliminando la necesidad de coordinación manual.  
-✅ **Mejor gestión del tiempo y recursos** para los profesionales.  
-✅ **Experiencia fluida e intuitiva** para los pacientes al reservar citas.  
-✅ **Reducción de cancelaciones y ausencias** mediante notificaciones automáticas.  
-
-### **¿Qué problema soluciona?**  
-🔹 Evita la sobrecarga administrativa de los profesionales al gestionar sus citas manualmente.  
-🔹 Reduce la fricción en la comunicación entre pacientes y profesionales.  
-🔹 Disminuye la tasa de inasistencia mediante recordatorios automatizados.  
-
-### **¿Para quién está diseñado?**  
-
-📌 **Pacientes/Clientes:**  
-- Personas que requieren reservar sesiones con profesionales de la salud mental.  
-
-📌 **Profesionales:**  
-- Psicólogos y especialistas que necesitan gestionar su disponibilidad y citas.  
-
-📌 **Administradores:**  
-- Personal encargado de validar citas, gestionar disponibilidad y configurar reglas en la plataforma.  
+✅ **Facilitar la programación de citas** entre pacientes y profesionales, permitiendo una experiencia fluida y sin complicaciones.  
+✅ **Optimizar la gestión de disponibilidad**, permitiendo a los profesionales definir y modificar sus horarios de atención de manera manual.  
+✅ **Asegurar una comunicación efectiva**, mediante **notificaciones automáticas** que confirman y recuerdan las citas programadas.  
+✅ **Validar la aceptación del sistema**, proporcionando una versión funcional que pueda ser utilizada por usuarios reales antes de futuras mejoras.  
+✅ **Garantizar seguridad y cumplimiento normativo**, protegiendo los datos de los usuarios según las regulaciones vigentes.  
 
 ---
 
 ### **1.2 Características y Funcionalidades Principales**  
 
-El MVP del Sistema de Agendamiento de Citas incluye las siguientes funcionalidades clave:  
+El MVP incluye una serie de funcionalidades esenciales para garantizar su operación efectiva, organizadas en tres áreas clave:  
 
-| **Funcionalidad**            | **Descripción** |
-|-----------------------------|------------------------------------------------|
-| **Agendamiento de Citas**   | Los pacientes pueden reservar citas con profesionales disponibles. |
-| **Modificación y Cancelación** | Los pacientes pueden modificar o cancelar citas según las reglas establecidas. |
-| **Gestión de Disponibilidad** | Los profesionales pueden definir y actualizar manualmente sus horarios. |
-| **Notificaciones Automáticas** | Se enviarán correos electrónicos de confirmación y recordatorios de citas. |
-| **Interfaz Intuitiva** | Plataforma fácil de usar, accesible para todos los usuarios. |
-| **Seguridad y Privacidad** | Protección de datos personales conforme a normativas de privacidad. |
-| **Alta Disponibilidad** | Garantiza una operatividad mínima del 99% del tiempo. |
+#### 🏥 **Gestión de Citas**  
+- **Agendamiento de citas**: Los pacientes pueden seleccionar un profesional, elegir un horario disponible y confirmar su cita.  
+- **Modificación y cancelación de citas**: Los pacientes pueden gestionar sus citas dentro de los parámetros definidos (mínimo 24 horas de anticipación).  
+- **Mensajes en tiempo real**: Se notificará a los pacientes si la disponibilidad del profesional cambia durante el proceso de selección.  
 
-📌 **Exclusiones del MVP:**  
-❌ No incluye autenticación ni registro de usuarios.  
-❌ No permite integración con calendarios externos.  
-❌ No ofrece pagos en línea ni reportes avanzados.  
+#### 📅 **Gestión de Disponibilidad**  
+- **Configuración manual de horarios**: Los profesionales pueden definir sus horarios de atención.  
+- **Bloqueo de horarios y días completos**: Permite a los profesionales bloquear ciertos horarios o días si no están disponibles.  
+- **Visualización de citas programadas**: Los profesionales pueden ver un listado de sus próximas citas en la plataforma.  
 
-🔹 **Futuras mejoras previstas:** Integración con pasarelas de pago, sincronización con calendarios externos, reportes avanzados y mensajería vía WhatsApp.  
+#### 📩 **Notificaciones y Seguridad**  
+- **Notificaciones por correo electrónico**:  
+  ✅ Confirmación de cita al agendar.  
+  ✅ Recordatorios automáticos (24 horas y 1 hora antes).  
+  ✅ Avisos en caso de modificación o cancelación.  
+- **Seguridad y privacidad de datos**:  
+  ✅ Uso de PostgreSQL con Supabase y reglas de seguridad RLS (Row Level Security).  
+  ✅ Cumplimiento con la Ley 1581 de 2012 (Protección de Datos en Colombia).  
+  ✅ Accesibilidad web conforme a estándares **WCAG**.  
 
----
+🚀 **Tecnología utilizada:**  
+- **Frontend:** Next.js  
+- **Backend:** NestJS  
+- **Base de Datos:** PostgreSQL con Supabase  
+
 
 
 ### **1.3. Diseño y experiencia de usuario:**
