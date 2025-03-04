@@ -262,12 +262,6 @@ Se debe inicializar el backend con **NestJS**, asegurando que la estructura del 
 ----------
 
 
-### **📌 Actualización de Historias de Usuario con la Integración de Supabase**
-
-Dado el cambio en la arquitectura del backend, se han actualizado las historias de usuario afectadas. Se procederá a la revisión y aprobación **una por una**.
-
-----------
-
 ### **Historia de Usuario 2: Configuración de la Base de Datos con Supabase**
 
 📌 **Épica:** Configuración del Proyecto Backend
@@ -528,27 +522,27 @@ Los profesionales deben poder establecer su disponibilidad dentro del horario pe
 
 ----------
 
-### **Historia de Usuario 4: Notificaciones Automáticas de Citas**
+### **Historia de Usuario 4: Notificaciones Automáticas de Citas**  
 
-**Título:** Como paciente y profesional, quiero recibir notificaciones automáticas sobre mis citas para estar informado oportunamente.
+**Título:** Como paciente y profesional, quiero recibir notificaciones automáticas sobre mis citas para estar informado oportunamente.  
 
 **Descripción:**  
-El sistema debe enviar notificaciones por correo electrónico en diferentes momentos clave del ciclo de una cita:
-
-1.  **Confirmación inmediata** tras agendar una cita.
-2.  **Recordatorio 24 horas antes** de la cita.
-3.  **Recordatorio 1 hora antes** de la cita.
-4.  **Notificación en caso de modificación o cancelación.**
+El sistema debe enviar notificaciones por correo electrónico en diferentes momentos clave del ciclo de una cita. Las notificaciones deben generarse **de manera asíncrona** mediante un **sistema basado en eventos internos y una cola de procesamiento**, evitando bloqueos en la API.  
 
 **Criterios de Aceptación:**  
-✅ El paciente y el profesional reciben una **confirmación por correo** cuando se agenda una cita.  
-✅ El sistema envía **un recordatorio 24 horas antes** de la cita programada.  
-✅ El sistema envía **un recordatorio 1 hora antes** de la cita.  
-✅ Si una cita es modificada o cancelada, se envía una notificación a ambas partes.  
-✅ Si una notificación no puede ser enviada, el sistema debe registrar el intento fallido para su revisión.
+✅ El sistema emite un **evento interno** cuando se agenda, modifica o cancela una cita.  
+✅ Un **listener de eventos** recibe la información y procesa el envío de la notificación.  
+✅ Se integran **recordatorios automáticos** en los siguientes momentos:  
+   - **Confirmación inmediata** tras agendar una cita.  
+   - **Recordatorio 24 horas antes** de la cita.  
+   - **Recordatorio 1 hora antes** de la cita.  
+   - **Notificación en caso de modificación o cancelación de la cita.**  
+✅ La cola de procesamiento de notificaciones **gestiona los envíos de manera eficiente** y permite reintentos en caso de fallos.  
+✅ Existe una documentación clara en el repositorio sobre el sistema de notificaciones y su integración con eventos internos.  
 
 **Prioridad:** Alta  
-**Dependencias:** Agendamiento de citas, Sistema de notificaciones.
+**Dependencias:** Implementación del Agendamiento de Citas.  
+
 
 ----------
 
@@ -571,78 +565,83 @@ El sistema debe validar que las cancelaciones y modificaciones solo puedan reali
 
 ----------
 
-### **Historia de Usuario 6: Mensajes de Disponibilidad en Tiempo Real**
+### **Historia de Usuario 6: Mensajes de Disponibilidad en Tiempo Real**  
 
-**Título:** Como paciente, quiero que el sistema me informe en tiempo real si un profesional no tiene disponibilidad para evitar intentos fallidos de agendamiento.
+**Título:** Como paciente, quiero que el sistema me informe en tiempo real si un profesional no tiene disponibilidad para evitar intentos fallidos de agendamiento.  
 
 **Descripción:**  
-Cuando un paciente intenta agendar una cita, el sistema debe validar la disponibilidad del profesional en tiempo real. Si no hay horarios disponibles en la fecha seleccionada, se debe mostrar un mensaje claro para que el paciente pueda elegir otra fecha o profesional.
+Cuando un paciente intenta agendar una cita, el sistema debe validar la disponibilidad del profesional en tiempo real. Para ello, se utilizará **suscripción a eventos en Supabase o WebSockets**, en lugar de consultas recurrentes a la base de datos, asegurando que la información reflejada en la interfaz sea siempre actualizada.  
 
 **Criterios de Aceptación:**  
-✅ Si un profesional no tiene horarios disponibles, el paciente ve un mensaje indicando la falta de disponibilidad.  
-✅ Si hay disponibilidad, el paciente puede seleccionar una fecha y hora sin problemas.  
-✅ Si la disponibilidad de un profesional cambia mientras un paciente está seleccionando una fecha, el sistema debe actualizar la información en tiempo real.  
-✅ Se debe considerar en futuras versiones la posibilidad de una **lista de espera** o **alerta de disponibilidad** para pacientes interesados.
+✅ La disponibilidad de los profesionales se **actualiza en tiempo real** en la interfaz del paciente.  
+✅ Si un horario ya no está disponible al momento de seleccionarlo, se muestra un **mensaje claro en la interfaz**.  
+✅ El sistema utiliza **suscripción a cambios en Supabase** o **WebSockets** en lugar de consultas directas a la base de datos.  
+✅ Se documenta la estrategia de actualización en tiempo real en el repositorio.  
 
 **Prioridad:** Media  
-**Dependencias:** Gestión de disponibilidad, Agendamiento de citas.
+**Dependencias:** Gestión de disponibilidad, Agendamiento de citas.  
 
 ----------
 
-### **Historia de Usuario 7: Bloqueo de Agenda por Parte del Profesional**
+### **Historia de Usuario 7: Bloqueo de Agenda por Parte del Profesional**  
 
-**Título:** Como profesional, quiero poder bloquear mi agenda por horas o días completos para gestionar mi disponibilidad.
+**Título:** Como profesional, quiero poder bloquear mi agenda por horas o días completos para gestionar mi disponibilidad sin afectar citas ya agendadas.  
 
 **Descripción:**  
-El sistema debe permitir que los profesionales bloqueen horarios específicos o días completos cuando no puedan atender citas. Si un profesional bloquea un horario en el que ya hay citas programadas, el sistema debe advertirle y ofrecerle opciones para reprogramarlas o cancelarlas antes de aplicar el bloqueo.
+El sistema debe permitir que los profesionales bloqueen horarios específicos o días completos cuando no puedan atender citas. Si un profesional intenta bloquear un horario en el que ya existen citas agendadas, el sistema debe **ofrecer la opción de reprogramación automática** antes de aplicar el bloqueo, garantizando que los pacientes sean informados y puedan seleccionar un nuevo horario.  
 
 **Criterios de Aceptación:**  
 ✅ El profesional puede seleccionar un rango de horas o un día completo para bloquear su disponibilidad.  
-✅ El sistema valida que no existan citas programadas en los horarios bloqueados.  
-✅ Si hay citas agendadas en el horario a bloquear, el sistema muestra una advertencia y ofrece opciones para reprogramación o cancelación.  
+✅ El sistema **valida que no existan citas programadas** en los horarios bloqueados.  
+✅ Si hay citas agendadas en el horario a bloquear, el sistema:  
+   - **Muestra una advertencia al profesional.**  
+   - **Ofrece la opción de reprogramar automáticamente las citas afectadas.**  
+   - **Notifica a los pacientes sobre la reprogramación.**  
 ✅ Los pacientes no pueden agendar citas en horarios bloqueados.  
-✅ Los cambios en la disponibilidad se reflejan en el sistema en tiempo real.
+✅ Los cambios en la disponibilidad se reflejan en **tiempo real** en el sistema.  
+✅ Existe documentación clara en el repositorio sobre la funcionalidad de bloqueo de agenda y reprogramación de citas.  
 
 **Prioridad:** Alta  
-**Dependencias:** Gestión de disponibilidad, Agendamiento de citas.
+**Dependencias:** Gestión de disponibilidad, Agendamiento de citas.  
+
 
 ----------
 
-### **Historia de Usuario 8: Registro y Auditoría de Cambios en las Citas**
+### **Historia de Usuario 8: Registro y Auditoría de Cambios en las Citas**  
 
-**Título:** Como administrador del sistema, quiero que se registre un historial de cambios en las citas para garantizar trazabilidad y control.
+**Título:** Como administrador del sistema, quiero que se registre un historial inmutable de cambios en las citas para garantizar trazabilidad y control.  
 
 **Descripción:**  
-Cada vez que una cita sea creada, modificada o cancelada, el sistema debe registrar un **historial de cambios** con la información relevante, como la fecha y hora del cambio, el usuario que realizó la acción y el tipo de modificación realizada.
+Cada vez que una cita sea creada, modificada o cancelada, el sistema debe registrar un **historial inmutable de cambios** con la información relevante, asegurando que los datos sean accesibles para auditoría y análisis. Además, los registros deben contener **metadata adicional**, incluyendo IP del usuario y tipo de dispositivo utilizado en la acción.  
 
 **Criterios de Aceptación:**  
-✅ El sistema registra automáticamente cualquier cambio en una cita (creación, modificación o cancelación).  
-✅ El historial de cambios almacena la fecha y hora del evento, el usuario que realizó la acción y el tipo de cambio.  
-✅ Los administradores y profesionales pueden acceder al historial de cambios de sus citas.  
-✅ Se garantiza la integridad del historial de auditoría (los registros no pueden ser editados ni eliminados).  
-✅ Se almacena la versión anterior de la cita antes de una modificación.
+✅ El sistema registra automáticamente cualquier cambio en una cita (**creación, modificación, cancelación**).  
+✅ Los registros incluyen **fecha y hora del evento, usuario que realizó la acción, IP y dispositivo utilizado**.  
+✅ Los administradores y profesionales pueden **consultar el historial de cambios**, pero **no pueden modificar ni eliminar registros**.  
+✅ Se garantiza la **inmutabilidad de los registros**, evitando alteraciones indebidas.  
+✅ Existe documentación clara en el repositorio sobre la implementación del registro de auditoría.  
 
 **Prioridad:** Media  
-**Dependencias:** Agendamiento de citas, Seguridad de datos, Base de datos de auditoría.
+**Dependencias:** Agendamiento de citas, Seguridad de datos, Base de datos de auditoría.  
 
 ----------
 
-### **Historia de Usuario 9: Configuración Parametrizable de Reglas del Sistema**
+### **Historia de Usuario 9: Configuración Parametrizable de Reglas del Sistema**  
 
-**Título:** Como administrador, quiero poder configurar parámetros clave del sistema, como los tiempos de cancelación y el horario de atención, para adaptarlo a diferentes necesidades.
+**Título:** Como administrador, quiero poder configurar parámetros clave del sistema sin afectar citas ya programadas.  
 
 **Descripción:**  
-El sistema debe permitir que ciertos parámetros, como el límite de tiempo para cancelaciones/modificaciones y el horario de atención de los profesionales, sean configurables a través de una interfaz de administración o un archivo de configuración.
+El sistema debe permitir que ciertos parámetros, como el **límite de tiempo para cancelaciones/modificaciones y el horario de atención de los profesionales**, sean configurables a través de una interfaz de administración o un archivo de configuración. Los cambios en la configuración **solo deben afectar nuevas citas**, garantizando que las reservas existentes mantengan las condiciones con las que fueron creadas.  
 
 **Criterios de Aceptación:**  
-✅ El administrador puede definir el **límite de tiempo para cancelaciones/modificaciones** (ejemplo: 24 horas antes).  
-✅ El administrador puede configurar el **horario de atención** de los profesionales (ejemplo: 7:00 a.m. - 5:00 p.m.).  
-✅ Los cambios en la configuración se aplican automáticamente sin afectar citas ya programadas.  
-✅ Los valores configurados se reflejan en las validaciones del sistema (ejemplo: evitar cancelaciones fuera del tiempo permitido).  
-✅ Se registra cualquier cambio en la configuración en un **historial de auditoría**.
+✅ El administrador puede modificar las **reglas del sistema** desde una interfaz o archivo de configuración.  
+✅ Los cambios en las reglas del sistema **no afectan citas ya programadas**, sino únicamente nuevas reservas.  
+✅ Se implementa una **validación en el backend** para asegurar que las citas existentes mantengan su configuración original.  
+✅ Se registra cualquier cambio en la configuración en un **historial de auditoría**.  
+✅ Existe documentación clara en el repositorio sobre la parametrización de reglas del sistema.  
 
 **Prioridad:** Alta  
-**Dependencias:** Gestión de citas, Auditoría de cambios, Panel de administración.
+**Dependencias:** Gestión de citas, Auditoría de cambios, Panel de administración.  
 
 ----------
 
