@@ -232,25 +232,370 @@ Este debe cumplir con los siguientes principios y arquitecturas:
 
 **Prompt 1:**
 
+---
+Ajusta el documento **ARD (Architecture Requirements Document)** en base a la nueva definición de la base de datos.  
+
+### **Proceso de Actualización:**  
+- La revisión se realizará **de forma iterativa**, ajustando **un punto a la vez**.  
+- **Cada actualización debe ser aprobada** antes de continuar con el siguiente punto.  
+- **Se debe mantener la estructura original** del documento ARD.  
+
+### **Formato de Respuesta Esperado:**  
+📌 **Sección a actualizar:** (Indicar la parte del documento)  
+🔍 **Justificación del cambio:** (Explicar por qué es necesaria la modificación)  
+✍ **Versión actualizada:** (Mostrar solo el contenido modificado)  
+✅ **Esperando aprobación antes de continuar.**  
+
+---
+
+
 **Prompt 2:**
 
+---
+Carga los siguientes archivos en el contexto de este chat y utiliza su contenido para estructurar la información de la **página principal** de la plataforma.  
+
+### 🎯 **Objetivo:**  
+Transformar la información en un formato listo para ser implementado en la web, asegurando que:  
+- Siga los **estándares de diseño y usabilidad web**.  
+- Esté **claramente estructurada** para facilitar su integración.  
+- **Capte la atención del usuario desde el primer momento**.  
+
+### 📑 **Requisitos:**  
+- **Organización efectiva** del contenido con jerarquía visual clara.  
+- **Texto atractivo y persuasivo** para enganchar a los usuarios.  
+- Adaptación a un diseño **moderno y responsive**, priorizando UX/UI.  
+- **Uso de elementos clave** (títulos llamativos, subtítulos, bullet points, llamadas a la acción).  
+
+### 🚀 **Formato de Entrega:**  
+- Secciones organizadas con su respectivo contenido.  
+- Propuesta de **titulares y subtítulos** impactantes.  
+- Sugerencias de llamadas a la acción (CTA) efectivas.  
+
+---
+
 **Prompt 3:**
+
+---
+Carga los siguientes archivos en el contexto de este chat y utiliza su contenido para estructurar la información de la **página principal** de la plataforma.  
+
+### 🎯 **Objetivo:**  
+Transformar la información en un formato listo para ser implementado en la web, asegurando que:  
+- Siga los **estándares de diseño y usabilidad web**.  
+- Esté **claramente estructurada** para facilitar su integración.  
+- **Capte la atención del usuario desde el primer momento**.  
+
+### 📑 **Requisitos:**  
+- **Organización efectiva** del contenido con jerarquía visual clara.  
+- **Texto atractivo y persuasivo** para enganchar a los usuarios.  
+- Adaptación a un diseño **moderno y responsive**, priorizando UX/UI.  
+- **Uso de elementos clave** (títulos llamativos, subtítulos, bullet points, llamadas a la acción).  
+
+### 🚀 **Formato de Entrega:**  
+- Secciones organizadas con su respectivo contenido.  
+- Propuesta de **titulares y subtítulos** impactantes.  
+- Sugerencias de llamadas a la acción (CTA) efectivas.  
+---
 
 ### **2.3. Descripción de alto nivel del proyecto y estructura de ficheros**
 
 **Prompt 1:**
 
+---
+El desarrollo del proyecto seguirá un **flujo incremental**, en el que cada fase construye sobre la anterior.  
+
+### **📌 Fase 1: Base Técnica Sólida**  
+Esta primera fase es **crucial**, ya que establece los fundamentos de la infraestructura y arquitectura del proyecto. Para garantizar una arquitectura escalable, mantenible y alineada con buenas prácticas, el desarrollo debe cumplir con:  
+
+#### **🛠 Cumplimiento de Arquitecturas y Principios:**  
+- **Diseño Dirigido por el Dominio (DDD)**  
+- **Arquitectura Hexagonal**  
+- **Vertical Slicing**  
+- **Screaming Architecture**  
+- **Clean Architecture**  
+- **SOLID y DRY**  
+
+#### **📌 Patrones de Diseño Aplicables (En casos específicos):**  
+- **Singleton** → Asegura una única instancia de una clase con un punto de acceso global.  
+- **Factory** → Permite la creación de objetos sin especificar su clase exacta.  
+- **Observer** → Facilita la comunicación entre objetos cuando hay cambios en su estado.  
+- **Strategy** → Permite definir y cambiar algoritmos de forma intercambiable.  
+
+Además, se debe garantizar una **separación modular**, dividiendo el sistema en módulos independientes que permitan la escalabilidad y el mantenimiento eficiente del proyecto.  
+
+---
+
+### **📌 Tarea a realizar:**  
+Con base en estos lineamientos, **propón una primera versión de la estructura del proyecto**, asegurando que:  
+1. **Defina una estructura de carpetas y módulos** siguiendo las arquitecturas y principios mencionados.  
+2. **Incluya una descripción detallada** justificando la organización propuesta y su impacto en la escalabilidad y mantenibilidad del sistema.  
+3. **Proporcione diagramas visuales** para facilitar la comprensión:  
+   - 📍 **Diagrama de flujo** → Representación del flujo de ejecución y procesos clave.  
+   - 📍 **Diagrama de secuencia** → Descripción de la interacción entre módulos y componentes en tiempo de ejecución.  
+
+
+---
+
 **Prompt 2:**
 
+---
+Debemos aplicar mejoras a la **primera entrega** del proyecto, optimizando la organización del código y la estructura del proyecto en **NestJS**.  
+
+### **📌 Mejoras a Implementar:**  
+
+#### **1️⃣ Organización del código compartido**  
+- La lógica **compartida** y las **configuraciones globales** deberán ubicarse en la carpeta **` @libs  `**.  
+- La aplicación principal (` @apps  `) solo contendrá la lógica específica del proyecto, manteniendo un código más limpio y modular.  
+
+#### **2️⃣ Uso de Guards en lugar de Middlewares**  
+- En lugar de **middlewares**, se utilizarán **guards**, ya que NestJS ofrece esta opción de manera nativa.  
+- Si los guards son reutilizables en varias partes del sistema, deberán organizarse dentro de **`libs`**, siguiendo una estructura modular.  
+
+#### **3️⃣ Configuración centralizada en `  @config.yaml  `**  
+- El proyecto ya cuenta con una configuración base en **`config.yaml`**, donde se manejan parámetros clave como el **puerto de la aplicación**.  
+- En la nueva estructura de directorios, se debe respetar la existencia de las carpetas y archivos actuales encargados de gestionar esta configuración.  
+- Se debe proporcionar una **explicación clara del uso de estos archivos** dentro del proyecto.  
+
+#### **4️⃣ Estructura modular en `libs`**  
+- Todo lo que se ubique dentro de `libs` deberá estar **estructurado de manera modular**, similar a la carpeta existente **`config-manager`**.  
+- Este enfoque garantizará que el proyecto sea más escalable y organizado.  
+
+---
+
+### **📌 Tarea a realizar:**  
+1. **Proponer una nueva estructura de directorios** que incorpore estas mejoras, asegurando que:  
+   - La configuración global y lógica compartida se ubiquen en `libs`.  
+   - Guards reemplacen middlewares y se organicen adecuadamente.  
+   - Se mantenga la carpeta y archivos actuales para `config.yaml`.  
+2. **Explicar detalladamente** cada cambio realizado y su propósito.  
+3. **Justificar cómo esta nueva estructura contribuye a la modularidad y escalabilidad del proyecto.**  
+
+---
+
 **Prompt 3:**
+
+---
+
+La nueva estructura del proyecto es **más ordenada y modular**, lo que facilita su construcción progresiva hasta la entrega final.  
+
+Sin embargo, avanzaremos de forma **iterativa**, dividiendo el proceso en **fases y subfases**. Antes de comenzar a crear carpetas y archivos, es necesario **definir claramente las subfases de esta primera etapa**, basándonos en la nueva estructura establecida.  
+
+### **📌 Tareas a realizar:**  
+1. **Definir las subfases de la primera etapa**  
+   - Desglosa las tareas en pasos más pequeños y organizados.  
+   - Justifica la necesidad de cada subfase en función de la arquitectura propuesta.  
+
+2. **Explicar cada subfase en detalle**  
+   - Describe **qué se hará** en cada una y **por qué es importante**.  
+   - Asegura que cada paso contribuya a una construcción iterativa e incremental del proyecto.  
+
+3. **Primer cambio a realizar:**  
+   - La nueva estructura de carpetas ha modificado la forma en que actualmente está organizada **`  @config-manager  `**.  
+   - Este será **el primer cambio a realizar**, asegurando que se adapte correctamente a la nueva arquitectura del sistema.  
+
+Una vez establecidas y aprobadas las subfases, procederemos con la creación de los directorios y archivos necesarios.  
+
+---
 
 ### **2.4. Infraestructura y despliegue**
 
 **Prompt 1:**
 
+---
+### 🧠 **Contexto:**
+
+Cuento con dos proyectos:
+
+-   ` → Backend de la aplicación @calenconnect-api 
+-   ` → Frontend de la aplicación @calenconnect-ui 
+
+Deseo desplegar ambos en **Amazon Web Services (AWS)** utilizando **instancias EC2**, pero **no tengo mucha experiencia previa** con el proceso de despliegue en la nube.
+
+----------
+
+### 🎯 **Objetivo:**
+
+Obtener una **explicación clara, paso a paso**, de cómo realizar el despliegue de estos dos proyectos en **AWS EC2**, desde cero, incluyendo:
+
+-   Configuración del entorno.
+-   Instalación de dependencias.
+-   Servidores recomendados.
+-   Seguridad básica.
+-   Ejecución de los proyectos en producción.
+
+----------
+
+### 📌 Requisitos específicos:
+
+1.  **Explicación del flujo general:**
+    
+    -   ¿Qué es una instancia EC2 y cómo se utiliza?
+    -   ¿Qué tipo de instancia se recomienda para comenzar?
+2.  **Configuración inicial de EC2:**
+    
+    -   Creación de instancia desde AWS Console.
+    -   Sistema operativo sugerido (ej: Ubuntu).
+    -   Acceso vía SSH y configuración de puertos (22, 80, 443, 3000, etc.).
+3.  **Despliegue del Backend (`):**
+    
+    -   Instalación de Node.js, yarn/npm, PM2.
+    -   Clonado del repositorio, instalación de dependencias y variables de entorno.
+    -   Levantar la API y mantenerla viva (ej: con PM2).
+4.  **Despliegue del Frontend (`):**
+    
+    -   Construcción del proyecto (`npm run build`).
+    -   Uso de `serve`, `nginx`, o similar para servir los archivos.
+    -   Configuración de dominio si aplica.
+5.  **Seguridad y mantenimiento básico:**
+    
+    -   Configurar `ufw` (firewall).
+    -   Acceso solo por clave o certificado.
+    -   (Opcional) HTTPS con Let's Encrypt.
+6.  **Recomendaciones extra:**
+    
+    -   Buenas prácticas para mantener los servicios activos.
+    -   Automatización sugerida (deploy scripts o GitHub Actions).
+    -   Alternativas como Elastic Beanstalk o ECS (si se desea escalar a futuro).
+
+----------
+
+### 🛠️ Instrucciones:
+
+1.  Explica todo el proceso como si fuera para alguien que lo hace por primera vez.
+2.  Divide las instrucciones por etapas (EC2 setup, backend, frontend, seguridad).
+3.  Usa ejemplos concretos (comandos de terminal, configuraciones, puertos).
+4.  Asegúrate de explicar _por qué_ se hace cada paso, no solo cómo.
+5.  Si aplica, incluye advertencias o errores comunes a evitar.
+
+----------
+
+### ✅ Resultado esperado:
+
+-   Guía completa para desplegar ambos proyectos en AWS EC2.
+-   Explicaciones claras y fáciles de seguir, incluso sin experiencia previa.
+-   Configuración básica segura y funcional para producción.
+
+---
+
 **Prompt 2:**
 
+---
+### 🧠 **Contexto General:**
+
+Como **DevSecOps Senior**, se te ha encomendado diseñar y desplegar la infraestructura necesaria para los proyectos:
+
+-   ` (@calenconnect-api )
+-   ` (@calenconnect-ui )
+
+----------
+
+### 🎯 **Objetivo del Prompt:**
+
+Implementar la infraestructura usando **Terraform** dentro de la carpeta `, cumpliendo con los siguientes requisitos técnicos y operativos.
+
+----------
+
+### 📌 Requisitos de Infraestructura:
+
+1.  **Instancias EC2:**
+    
+    -   Crear **dos instancias EC2** de tipo `t2.micro`, una para el backend y otra para el frontend.
+    -   Sistema operativo sugerido: Amazon Linux 2 o Ubuntu 22.04.
+2.  **Acceso a archivos desde S3:**
+    
+    -   Se provee un bucket S3 con los siguientes archivos en su raíz:
+        -   `frontend.zip`
+        -   `backend.zip`
+    -   Cada instancia EC2 deberá:
+        -   Tener **permisos adecuados (IAM Role + IAM Policy)** para acceder y descargar los archivos desde el bucket.
+        -   Descargar el archivo correspondiente y descomprimirlo en el sistema.
+3.  **Configuración de red y puertos:**
+    
+    -   El **backend** (`calenconnect-api`) debe ser accesible desde Internet en el **puerto 8080**.
+    -   El **frontend** (`calenconnect-ui`) debe ser accesible desde Internet en el **puerto 3000**.
+    -   Asegúrate de configurar correctamente los **grupos de seguridad (Security Groups)** para habilitar solo los puertos necesarios.
+4.  **Credenciales de AWS:**
+    
+    -   No es necesario definir claves de acceso en Terraform, ya que ya están configuradas vía `aws configure`.
+5.  **Automatización con Terraform:**
+    
+    -   Toda la infraestructura debe ser declarada utilizando Terraform.
+    -   El código debe residir en la carpeta ` del proyecto.
+    -   Incluye módulos y separa la configuración en `main.tf`, `variables.tf`, `outputs.tf`, y `provider.tf` según buenas prácticas.
+
+----------
+
+### 🛠️ Instrucciones:
+
+1.  Genera una estructura base de Terraform con todos los archivos necesarios.
+2.  Declara recursos para:
+    -   VPC (si es necesaria), subredes, instancias EC2, security groups, roles e IAM policies.
+3.  Proporciona los `user_data` scripts necesarios para que las EC2:
+    -   Instalen dependencias (Node.js, unzip, etc.).
+    -   Descarguen y descompriman el archivo `.zip` desde S3.
+    -   Inicien el backend (puerto 8080) o el frontend (puerto 3000).
+4.  Asegúrate de que la solución siga buenas prácticas DevSecOps:
+    -   Principio de mínimo privilegio en IAM.
+    -   Separación de responsabilidades en archivos Terraform.
+    -   Comentarios que documenten lo necesario.
+
+----------
+
+### ✅ Resultado esperado:
+
+-   Infraestructura desplegable con `terraform init` + `terraform apply`.
+-   Dos instancias EC2 accesibles públicamente en los puertos indicados.
+-   Código fuente de los proyectos descargado automáticamente desde S3.
+-   Aplicaciones backend y frontend en funcionamiento tras el despliegue.
+
+---
+
 **Prompt 3:**
+
+---
+## 🔧 Contexto de Infraestructura y Despliegue
+
+Se cuenta con una implementación actual de infraestructura como código utilizando Terraform: @terraform `.
+
+Además, se tienen dos proyectos que deben ser desplegados:
+- API: @calenconnect-api `
+- Interfaz web (frontend): @calenconnect-ui `
+
+El entorno debe cumplir con el siguiente requerimiento técnico:
+- Utilizar Node.js versión 20 o superior
+
+---
+
+## ✅ Objetivo
+
+Analiza la implementación actual de Terraform y los proyectos mencionados para lograr un despliegue exitoso de ambas aplicaciones. La validación debe contemplar todo el flujo, desde la creación de las instancias hasta la ejecución de los servicios.
+
+---
+
+## 📌 Instrucciones
+
+1. **Valida la infraestructura definida en `:**
+   - ¿Se están creando correctamente las instancias necesarias?
+   - ¿Se están configurando de forma óptima para alojar las aplicaciones Node.js?
+   - ¿Se asegura compatibilidad con Node.js 20+?
+
+2. **Evalúa la preparación de los proyectos para su despliegue:**
+   - `: ¿Está correctamente configurado para ejecutarse en producción? ¿Faltan variables de entorno, scripts de inicio, etc.?
+   - `: ¿Puede construirse y desplegarse correctamente? ¿Está definido el build y el entorno de ejecución?
+
+3. **Identifica los ajustes necesarios para garantizar un despliegue exitoso de ambos proyectos:**
+   - Cambios en archivos Terraform (por ejemplo, en configuración de instancias, grupos de seguridad, variables, etc.)
+   - Cambios en los proyectos (por ejemplo, estructura de carpetas, configuración de entorno, Dockerfiles si aplica, scripts de despliegue)
+
+---
+
+## 📝 Formato de respuesta esperado
+
+- Explicación organizada por secciones: `Terraform`, `API`, `UI`
+- Para cada sección, incluye:
+  - Diagnóstico actual (qué está bien, qué falta)
+  - Recomendaciones concretas de mejora
+  - Justificación técnica de cada cambio sugerido
+---
 
 ### **2.5. Seguridad**
 
@@ -419,19 +764,232 @@ Importante: No generes aun ninguna de las fases
 
 **Prompt 1:**
 
+---
+### 🧠 **Contexto:**
+
+El proyecto actual desarrollado con **NestJS** utiliza **Prisma** como ORM, cuenta con una base de datos modelada y un archivo `seed.ts` que permite cargar datos iniciales para pruebas o desarrollo.
+
+La base del código se encuentra bajo `@Codebase`, con estructura modular (`) ya definida.
+
+----------
+
+### 🎯 **Objetivo:**
+
+Diseñar e implementar una estrategia completa de **pruebas funcionales e integrales** que abarque todos los flujos críticos de la aplicación, asegurando:
+
+-   Alta cobertura.
+-   Aislamiento de dependencias.
+-   Datos de prueba controlados.
+-   Cumplimiento de buenas prácticas y patrones de testing en NestJS.
+
+----------
+
+### 📌 Requisitos:
+
+1.  **Auditoría inicial:**
+    
+    -   Revisar cada módulo (`) de forma independiente.
+    -   Identificar sus casos de uso principales, controladores, servicios y dependencias externas.
+2.  **Diseño de pruebas:**
+    
+    -   Implementar **pruebas funcionales** que validen cada endpoint expuesto.
+    -   Crear **pruebas integrales** que validen la interacción entre servicios, controladores y base de datos (mockeada o en entorno de test).
+3.  **Uso de mocks y datos simulados:**
+    
+    -   Evitar dependencias de la base de datos en pruebas unitarias.
+    -   Para pruebas integrales o e2e:
+        -   Utilizar datos del `seed.ts` como base de pruebas.
+        -   O bien, usar `prisma-test-utils` o herramientas similares para manejar entornos transaccionales con datos temporales.
+4.  **Buenas prácticas a seguir:**
+    
+    -   Estructura de pruebas: `__tests__` o `*.spec.ts`.
+    -   Usar `@nestjs/testing` para configurar módulos de prueba.
+    -   Mockear servicios externos (Ej: mail, notificaciones, auth).
+    -   Separar claramente pruebas **unitarias**, **funcionales** e **integrales**.
+5.  **Tecnologías sugeridas:**
+    
+    -   `Jest` (ya integrado en NestJS).
+    -   `supertest` para pruebas funcionales HTTP.
+    -   `faker` o `test-data-bot` para datos aleatorios.
+    -   `ts-mockito`, `jest.mock`, o `vi.mock` (si usas Vitest).
+
+----------
+
+### 🛠️ Instrucciones:
+
+1.  Analiza la estructura actual del proyecto.
+2.  Proporciona un plan claro y escalonado para implementar pruebas en los distintos módulos.
+3.  Sugiere la mejor estrategia para trabajar con datos mock usando Prisma.
+4.  Proporciona una estructura base para test de ejemplo.
+5.  (Opcional) Sugiere una posible estructura de carpetas para separar unit, functional e2e tests.
+
+----------
+
+### ✅ Resultado esperado:
+
+-   Plan detallado para comenzar la implementación de pruebas.
+-   Recomendaciones para estructurar test por módulo.
+-   Prácticas de testing alineadas con NestJS y Prisma.
+-   Fragmento de ejemplo de un `*.spec.ts` con datos simulados o mockeados.
+
+---
+
 **Prompt 2:**
+
+---
+### 🧠 **Contexto:**
+
+En base a la información previamente compartida, se requiere llevar a cabo un proceso estructurado para alcanzar un objetivo específico (ej. implementación de pruebas, rediseño de componente, refactorización, etc.).
+
+----------
+
+### 🎯 **Objetivo:**
+
+Definir un plan de trabajo dividido en **fases secuenciales**, donde cada una debe ser **desarrollada, validada y aprobada antes de avanzar** a la siguiente.  
+Este enfoque garantiza calidad, control y claridad en cada paso del proceso.
+
+----------
+
+### 📌 Instrucciones:
+
+1.  **Desglosa el objetivo general en fases claras y ordenadas.**
+    
+    -   Cada fase debe incluir:
+        -   Descripción breve.
+        -   Alcance de lo que debe lograrse.
+        -   Entregables esperados.
+        -   Dependencias si las hay (qué debe estar listo antes de avanzar).
+2.  **Al completar cada fase:**
+    
+    -   Se presentará para su validación.
+    -   Una vez **aprobada explícitamente**, se podrá continuar con la siguiente fase.
+3.  **Consideraciones:**
+    
+    -   Las fases deben ser lo suficientemente específicas para medir el progreso.
+    -   El avance debe ser progresivo, sin saltarse fases.
+    -   Si hay necesidad de retroceder por cambios, se deberá indicar qué fase se ve afectada.
+
+----------
+
+### 🛠️ Instrucciones:
+
+1.  Analiza el objetivo general del proceso.
+2.  Divide el trabajo en **fases numeradas y progresivas**.
+3.  Para cada fase, incluye:
+    -   Nombre de la fase.
+    -   Objetivo.
+    -   Acciones clave.
+    -   Resultado esperado (qué se valida).
+4.  Espera validación antes de continuar con la siguiente fase.
+
+----------
+
+### ✅ Resultado esperado:
+
+-   Lista estructurada de fases a seguir.
+-   Claridad sobre el orden, entregables y puntos de validación.
+-   Flujo de trabajo controlado y validado paso a paso.
+---
 
 **Prompt 3:**
 
 ---
+### 🎯 **Objetivo:**
+
+Iniciar la **implementación fase por fase**, asegurando que **cada etapa sea revisada, validada y aprobada** antes de avanzar a la siguiente. Este enfoque garantiza control, calidad y alineación continua con los objetivos del proyecto.
+
+----------
+
+### 📌 Instrucciones de trabajo:
+
+-   Procederemos con la **implementación secuencial** de las fases previamente definidas.
+-   **Cada fase será entregada y documentada** para su revisión.
+-   No se continuará a la siguiente fase hasta que la actual haya sido **validada y aprobada explícitamente**.
+-   En caso de que surjan observaciones, se ajustará lo necesario antes de continuar.
+
+----------
+
+### ✅ Resultado esperado:
+
+-   Flujo de trabajo progresivo, validado paso a paso.
+-   Registro claro del avance por fase.
+-   Aseguramiento de calidad y cumplimiento de requisitos en cada etapa.
+
+
+---
+ 
 
 ### 3. Modelo de Datos
 
 **Prompt 1:**
 
+---
+### **Instrucciones para la Modificación de la Sección 7**  
+
+Se deberán aplicar las siguientes modificaciones en la **Sección 7** para mejorar la claridad y el nivel de detalle:  
+
+#### **7.3 Modelo de Base de Datos**  
+- El modelo debe ser **mucho más completo**, incluyendo:  
+  ✅ **Nombre de las columnas** de cada tabla.  
+  ✅ **Tipos de datos** de cada atributo.  
+  ✅ **Llaves primarias y foráneas** correctamente definidas.  
+  ✅ **Relaciones entre tablas** con detalles de cardinalidad.  
+  ✅ **Cualquier otra información relevante** para un mejor contexto.  
+- La base de datos debe estar **totalmente normalizada** para garantizar eficiencia y consistencia.  
+- **Genera un diagrama entidad-relación (ER)** en **sintaxis Mermaid**, utilizando la versión actualizada, sin omitir ningún detalle.  
+
+#### **7.6 Diseño del Sistema y Arquitectura de Alto Nivel**  
+- Incluir un **diagrama visual en sintaxis Mermaid** para representar la arquitectura de alto nivel del sistema.  
+- Asegurar que el diagrama refleje de manera clara **componentes clave, módulos y sus interacciones**.  
+
+### **Tarea:**  
+🔹 **Entrega nuevamente toda la Sección 7** aplicando estos cambios.  
+
+---
+
 **Prompt 2:**
 
+---
+La base de datos del proyecto utilizará **PostgreSQL**, almacenada en **Supabase**. Supabase ya incluye un esquema predeterminado llamado **`auth`**, el cual será clave para la definición del modelo de base de datos del proyecto.  
+
+Antes de proceder con el diseño del modelo, proporciona un **detalle completo** sobre la estructura del esquema **`auth`** en Supabase, incluyendo:  
+- 📌 **Tablas y relaciones** dentro del esquema.  
+- 🔍 **Campos clave y sus tipos de datos**.  
+- 🔑 **Restricciones y reglas de autenticación** integradas.  
+- ⚙️ **Funciones o triggers relevantes**.  
+
+Esta información servirá como base para definir el modelo de datos del proyecto de manera coherente.  
+
+
+---
+
 **Prompt 3:**
+
+---
+Genera un **modelo ER** utilizando la sintaxis de **Mermaid** (asegurándote de que no contenga errores de sintaxis) que incluya:
+
+1. Las **tablas existentes** en el esquema **`auth`** (utilizadas en el MVP) proporcionado por Supabase para autenticación y registro de usuarios.
+2. Las **nuevas tablas** que se deberán crear para cubrir los requerimientos del MVP.
+
+### **Requisitos del Modelo:**  
+- **Normalización completa:** Asegúrate de que las nuevas tablas cumplan con las reglas de normalización para evitar redundancias.
+- **Detalles y justificaciones:**  
+  - Describe y justifica cada tabla y sus atributos.
+  - Explica las relaciones entre las tablas, detallando claves primarias, foráneas y cualquier restricción relevante.
+- **Enfoque MVP y escalabilidad:**  
+  - El modelo debe reflejar las funcionalidades previstas para el MVP.
+  - Debe ser lo suficientemente escalable para incorporar futuras funcionalidades o mejoras en fases posteriores.
+- **Contexto de autenticación:**  
+  - Considera que la autenticación y el registro de usuarios se gestionarán a través de Supabase, utilizando el esquema `auth`.
+
+### **Formato de Respuesta Esperado:**  
+- Código en sintaxis **Mermaid** para el diagrama ER.
+- Sección descriptiva que incluya:
+  - **Listado de tablas:** existentes y nuevas.
+  - **Descripción de atributos y justificación:** de cada tabla.
+  - **Explicación de relaciones:** entre tablas.
+
+---
 
 ---
 
