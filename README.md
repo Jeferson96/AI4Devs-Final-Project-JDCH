@@ -21,6 +21,26 @@ Antes de comenzar, asegúrate de:
      - Tutorial de instalación y configuración
      - Guía de desarrollo
 
+## 🤖 Asistencia en el Desarrollo
+
+Este proyecto ha sido desarrollado con el apoyo de un GPT personalizado, especializado en Prompt Engineering. Esta herramienta ha sido fundamental para:
+
+- 🎯 Optimización de prompts
+- 📝 Generación de documentación técnica
+- 🔍 Mejora en la calidad del código
+- 🚀 Aceleración del proceso de desarrollo
+
+### GPT Personalizado
+- **Nombre:** Prompt Engineering Expert
+- **Especialidad:** Optimización y estructuración de prompts
+- **Acceso:** [GPT Personalizado](https://chatgpt.com/g/g-6769d9bd3ca881919ddbb379496d1e62-prompt-refiner)
+- **Características:**
+  - Instrucciones específicas para desarrollo de software
+  - Enfoque en mejores prácticas de documentación
+  - Optimización de comunicación con IAs
+
+> **💡 Nota:** Este GPT personalizado está disponible públicamente y puede ser utilizado por otros desarrolladores para mejorar sus propios proyectos.
+
 ## 📁 Estructura del Proyecto
 
 El proyecto está distribuido en tres repositorios independientes para un mejor control de versiones:
