@@ -46,6 +46,24 @@ Contiene:
 - 🧪 Tests unitarios y de integración
 - 📡 Endpoints de la API
 
+#### Variables de Entorno Backend
+> **⚠️ Nota**: Credenciales temporales para demostración
+
+Crea un archivo `.env` en la raíz del proyecto:
+```bash
+NODE_ENV=production
+
+# Conexión a base de datos de prueba
+DATABASE_URL="postgresql://postgres.dvbqvvgltduwpmkwhlcf:T6U9htv9tfcdHvT8@aws-0-us-west-1.pooler.supabase.com:5432/postgres?schema=public"
+DIRECT_URL="postgresql://postgres.dvbqvvgltduwpmkwhlcf:T6U9htv9tfcdHvT8@aws-0-us-west-1.pooler.supabase.com:5432/postgres"
+SUPABASE_URL=https://dvbqvvgltduwpmkwhlcf.supabase.co
+SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2YnF2dmdsdGR1d3Bta3dobGNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA5MzcyMTMsImV4cCI6MjA1NjUxMzIxM30.v3aGxMCUXIaVpXC_9TzTPE_jnnLPNfInhE8UDYFhX14
+PORT=8080
+
+# Configuraciones específicas para pruebas
+TEST_TIMEOUT=30000 
+```
+
 ### 3. Repositorio Frontend (UI)
 **URL:** https://github.com/Jeferson96/calenconnect-ui.git
 
@@ -57,6 +75,17 @@ Contiene:
 - 🧪 Tests de componentes
 - 🌐 Configuración de rutas
 
+#### Variables de Entorno Frontend
+> **⚠️ Nota**: Credenciales temporales para demostración
+
+Crea un archivo `.env` en la raíz del proyecto:
+```bash
+VITE_SUPABASE_URL=https://dvbqvvgltduwpmkwhlcf.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2YnF2dmdsdGR1d3Bta3dobGNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA5MzcyMTMsImV4cCI6MjA1NjUxMzIxM30.v3aGxMCUXIaVpXC_9TzTPE_jnnLPNfInhE8UDYFhX14
+VITE_API_URL=http://localhost:3000
+```
+
+> **📅 Importante**: Estas credenciales serán revocadas después de la presentación.
 
 ## 🚀 Comenzando
 
